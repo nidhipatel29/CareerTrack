@@ -117,9 +117,6 @@ public class Job {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 
     public Company getCompany() {
         return company;
