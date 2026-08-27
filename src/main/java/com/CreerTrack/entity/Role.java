@@ -1,7 +1,7 @@
 package com.CreerTrack.entity;
 
 public enum Role {
-    ADMIN,
-    USER,
-    MANAGER
+    JOB_SEEKER,
+    EMPLOYER,
+    ADMIN
 }
