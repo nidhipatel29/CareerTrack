@@ -1,4 +1,4 @@
-package com.CreerTrack.entity;
+package com.CareerTrack.entity;
 
 public enum Role {
     JOB_SEEKER,

@@ -1,4 +1,4 @@
-package com.CreerTrack.entity;
+package com.CareerTrack.entity;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.Column;

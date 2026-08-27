@@ -1,4 +1,4 @@
-package com.CreerTrack.entity;
+package com.CareerTrack.entity;
 import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
