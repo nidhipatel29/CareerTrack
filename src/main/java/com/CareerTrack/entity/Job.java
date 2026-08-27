@@ -41,7 +41,6 @@ public class Job {
     @Column(name = "employment_type", nullable = false, length = 20)
     private EmploymentType employmentType;
 
-    @DecimalMin(value = "0.0", inclusive = true)
     @Column(name = "salary", precision = 12, scale = 2)
     private BigDecimal salary;
 
