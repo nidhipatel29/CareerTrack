@@ -58,24 +58,39 @@ public class CompanyServiceImpl implements CompanyService {
         return companyResponses;
     }
 
-   @Override
-public CompanyResponse getCompanyById(Long id) {
-    Company company = companyRepository.findById(id)
-            .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
+    @Override
+    public CompanyResponse getCompanyById(Long id) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
 
-    return new CompanyResponse(
-            company.getId(),
-            company.getName(),
-            company.getDescription(),
-            company.getWebsite(),
-            company.getLocation(),
-            company.getCreatedAt());
-}
+        return new CompanyResponse(
+                company.getId(),
+                company.getName(),
+                company.getDescription(),
+                company.getWebsite(),
+                company.getLocation(),
+                company.getCreatedAt());
+    }
 
-   @Override
-   public CompanyResponse updateCompany(Long id, CompanyRequest request) {
-    
-    return null;
-   }
+    @Override
+    public CompanyResponse updateCompany(Long id, CompanyRequest request) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
+
+        company.setName(request.getName());
+        company.setDescription(request.getDescription());
+        company.setWebsite(request.getWebsite());
+        company.setLocation(request.getLocation());
+
+        Company updatedCompany = companyRepository.save(company);
+
+        return new CompanyResponse(
+                updatedCompany.getId(),
+                updatedCompany.getName(),
+                updatedCompany.getDescription(),
+                updatedCompany.getWebsite(),
+                updatedCompany.getLocation(),
+                updatedCompany.getCreatedAt());
+    }
 
 }
