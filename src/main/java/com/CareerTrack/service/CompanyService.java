@@ -12,4 +12,6 @@ public interface CompanyService {
     List<CompanyResponse> getCompanies();
 
     CompanyResponse getCompanyById(Long id);
+
+    CompanyResponse updateCompany(Long id, CompanyRequest request);
 }
