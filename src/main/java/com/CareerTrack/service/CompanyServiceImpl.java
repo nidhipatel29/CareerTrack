@@ -1,5 +1,8 @@
 package com.CareerTrack.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.CareerTrack.dto.CompanyRequest;
@@ -10,29 +13,48 @@ import com.CareerTrack.repository.CompanyRepository;
 @Service
 public class CompanyServiceImpl implements CompanyService {
 
-
     private CompanyRepository companyRepository;
 
-    public CompanyServiceImpl(CompanyRepository theCompanyRepository){
-      this.companyRepository=theCompanyRepository;
+    public CompanyServiceImpl(CompanyRepository theCompanyRepository) {
+        this.companyRepository = theCompanyRepository;
     }
+
     @Override
     public CompanyResponse createCompany(CompanyRequest request) {
 
-        //now we need to save the entity not a request object
-        //convert companyRequest to company entity 
-        Company company=new Company(
-                                    request.getName(),request.getDescription(),request.getWebsite(),request.getLocation());
-    
-        
-        Company savedCompany=companyRepository.save(company);
+        // now we need to save the entity not a request object
+        // convert companyRequest to company entity
+        Company company = new Company(
+                request.getName(), request.getDescription(), request.getWebsite(), request.getLocation());
 
-        //return response
-        //convert company entity to company response
+        Company savedCompany = companyRepository.save(company);
 
-        CompanyResponse companyResponse=new CompanyResponse(savedCompany.getId(),savedCompany.getName(),savedCompany.getDescription()
-                                                            ,savedCompany.getWebsite(),savedCompany.getLocation(),savedCompany.getCreatedAt());
+        // return response
+        // convert company entity to company response
+
+        CompanyResponse companyResponse = new CompanyResponse(savedCompany.getId(), savedCompany.getName(),
+                savedCompany.getDescription(), savedCompany.getWebsite(), savedCompany.getLocation(),
+                savedCompany.getCreatedAt());
         return companyResponse;
     }
-    
+
+    @Override
+    public List<CompanyResponse> getCompanies() {
+
+        List<Company> companies = companyRepository.findAll();
+        List<CompanyResponse> companyResponses = new ArrayList<>();
+
+        for (Company company : companies) {
+            CompanyResponse companyResponse = new CompanyResponse(
+                                                company.getId(),
+                                                company.getName(),
+                                                company.getDescription(),
+                                                company.getWebsite(),
+                                                company.getLocation(),
+                                                company.getCreatedAt());
+            companyResponses.add(companyResponse);
+        }
+        return companyResponses;
+    }
+
 }
