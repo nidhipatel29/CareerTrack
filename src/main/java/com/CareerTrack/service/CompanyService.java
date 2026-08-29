@@ -10,4 +10,6 @@ public interface CompanyService {
     CompanyResponse createCompany(CompanyRequest request);
 
     List<CompanyResponse> getCompanies();
+
+    CompanyResponse getCompanyById(Long id);
 }
