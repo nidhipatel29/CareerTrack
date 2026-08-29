@@ -1,5 +1,7 @@
 package com.CareerTrack.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +14,9 @@ import com.CareerTrack.dto.CompanyResponse;
 import com.CareerTrack.service.CompanyService;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/companies")
@@ -31,5 +36,13 @@ public class CompanyController {
          return ResponseEntity.status(HttpStatus.CREATED).body(theCompanyResponse);
 
     }
+
+    @GetMapping("")
+    public List<CompanyResponse> viewAllCompanies(){
+      List<CompanyResponse> retrievedCompanies=companyService.getCompanies();
+      return retrievedCompanies;
+      
+    }
+    
     
 }
