@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.CareerTrack.dto.CompanyRequest;
 import com.CareerTrack.dto.CompanyResponse;
 import com.CareerTrack.entity.Company;
+import com.CareerTrack.exception.CompanyNotFoundException;
 import com.CareerTrack.repository.CompanyRepository;
 
 @Service
@@ -46,15 +47,29 @@ public class CompanyServiceImpl implements CompanyService {
 
         for (Company company : companies) {
             CompanyResponse companyResponse = new CompanyResponse(
-                                                company.getId(),
-                                                company.getName(),
-                                                company.getDescription(),
-                                                company.getWebsite(),
-                                                company.getLocation(),
-                                                company.getCreatedAt());
+                    company.getId(),
+                    company.getName(),
+                    company.getDescription(),
+                    company.getWebsite(),
+                    company.getLocation(),
+                    company.getCreatedAt());
             companyResponses.add(companyResponse);
         }
         return companyResponses;
     }
+
+   @Override
+public CompanyResponse getCompanyById(Long id) {
+    Company company = companyRepository.findById(id)
+            .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
+
+    return new CompanyResponse(
+            company.getId(),
+            company.getName(),
+            company.getDescription(),
+            company.getWebsite(),
+            company.getLocation(),
+            company.getCreatedAt());
+}
 
 }
