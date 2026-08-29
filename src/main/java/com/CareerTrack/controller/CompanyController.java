@@ -24,7 +24,7 @@ public class CompanyController {
     }
 
     @PostMapping
-    public ResponseEntity<CompanyResponse> createCompany(@Valid @RequestBody CompanyRequest companyRequest){
+    public ResponseEntity<CompanyResponse> startComapny(@Valid @RequestBody CompanyRequest companyRequest){
          CompanyResponse theCompanyResponse=  companyService.createCompany(companyRequest);
 
          //converting companyResonce to ResponseEntity
