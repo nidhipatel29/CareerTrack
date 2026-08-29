@@ -11,6 +11,9 @@ import com.CareerTrack.dto.CompanyResponse;
 import com.CareerTrack.service.CompanyService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -38,6 +41,12 @@ public class CompanyController {
       return retrievedCompanies;
       
     }
+
+    @GetMapping("/{id}")
+    public CompanyResponse viewAllCompanyById(@PathVariable Long id){
+      return companyService.getCompanyById(id);
+    }
+    
     
     
 }
