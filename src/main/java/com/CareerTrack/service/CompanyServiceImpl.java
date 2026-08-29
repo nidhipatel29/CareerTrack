@@ -93,4 +93,12 @@ public class CompanyServiceImpl implements CompanyService {
                 updatedCompany.getCreatedAt());
     }
 
+    @Override
+    public void deleteCompany(Long id) {
+        Company company = companyRepository.findById(id)
+            .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
+
+    companyRepository.delete(company);
+    }
+
 }

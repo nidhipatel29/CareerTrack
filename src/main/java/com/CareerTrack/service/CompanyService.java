@@ -14,4 +14,6 @@ public interface CompanyService {
     CompanyResponse getCompanyById(Long id);
 
     CompanyResponse updateCompany(Long id, CompanyRequest request);
+
+    void deleteCompany(Long id);
 }
