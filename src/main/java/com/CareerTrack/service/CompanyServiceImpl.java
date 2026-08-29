@@ -25,13 +25,13 @@ public class CompanyServiceImpl implements CompanyService {
                                     request.getName(),request.getDescription(),request.getWebsite(),request.getLocation());
     
         
-        Company tempCompany=companyRepository.save(company);
+        Company savedCompany=companyRepository.save(company);
 
         //return response
         //convert company entity to company response
 
-        CompanyResponse companyResponse=new CompanyResponse(tempCompany.getId(),tempCompany.getName(),tempCompany.getDescription()
-                                                            ,tempCompany.getWebsite(),tempCompany.getLocation(),tempCompany.getCreatedAt());
+        CompanyResponse companyResponse=new CompanyResponse(savedCompany.getId(),savedCompany.getName(),savedCompany.getDescription()
+                                                            ,savedCompany.getWebsite(),savedCompany.getLocation(),savedCompany.getCreatedAt());
         return companyResponse;
     }
     
