@@ -72,4 +72,10 @@ public CompanyResponse getCompanyById(Long id) {
             company.getCreatedAt());
 }
 
+   @Override
+   public CompanyResponse updateCompany(Long id, CompanyRequest request) {
+    
+    return null;
+   }
+
 }
