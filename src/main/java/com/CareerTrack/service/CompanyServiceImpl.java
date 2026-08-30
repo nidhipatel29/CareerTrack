@@ -20,6 +20,19 @@ public class CompanyServiceImpl implements CompanyService {
         this.companyRepository = theCompanyRepository;
     }
 
+    private CompanyResponse mapToResponse(Company company) {
+
+        // convert Company entity → CompanyResponse DTO
+        return new CompanyResponse(
+                company.getId(),
+                company.getName(),
+                company.getDescription(),
+                company.getWebsite(),
+                company.getLocation(),
+                company.getCreatedAt());
+
+    }
+
     @Override
     public CompanyResponse createCompany(CompanyRequest request) {
 
@@ -32,11 +45,7 @@ public class CompanyServiceImpl implements CompanyService {
 
         // return response
         // convert company entity to company response
-
-        CompanyResponse companyResponse = new CompanyResponse(savedCompany.getId(), savedCompany.getName(),
-                savedCompany.getDescription(), savedCompany.getWebsite(), savedCompany.getLocation(),
-                savedCompany.getCreatedAt());
-        return companyResponse;
+         return mapToResponse(savedCompany);
     }
 
     @Override
@@ -46,13 +55,7 @@ public class CompanyServiceImpl implements CompanyService {
         List<CompanyResponse> companyResponses = new ArrayList<>();
 
         for (Company company : companies) {
-            CompanyResponse companyResponse = new CompanyResponse(
-                    company.getId(),
-                    company.getName(),
-                    company.getDescription(),
-                    company.getWebsite(),
-                    company.getLocation(),
-                    company.getCreatedAt());
+            CompanyResponse companyResponse = mapToResponse(company);
             companyResponses.add(companyResponse);
         }
         return companyResponses;
@@ -63,13 +66,8 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
 
-        return new CompanyResponse(
-                company.getId(),
-                company.getName(),
-                company.getDescription(),
-                company.getWebsite(),
-                company.getLocation(),
-                company.getCreatedAt());
+               return mapToResponse(company);
+
     }
 
     @Override
@@ -83,22 +81,15 @@ public class CompanyServiceImpl implements CompanyService {
         company.setLocation(request.getLocation());
 
         Company updatedCompany = companyRepository.save(company);
-
-        return new CompanyResponse(
-                updatedCompany.getId(),
-                updatedCompany.getName(),
-                updatedCompany.getDescription(),
-                updatedCompany.getWebsite(),
-                updatedCompany.getLocation(),
-                updatedCompany.getCreatedAt());
+        return mapToResponse(updatedCompany);
     }
 
     @Override
     public void deleteCompany(Long id) {
         Company company = companyRepository.findById(id)
-            .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
+                .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
 
-    companyRepository.delete(company);
+        companyRepository.delete(company);
     }
 
 }
