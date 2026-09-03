@@ -1,4 +1,7 @@
 package com.CareerTrack.service;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import com.CareerTrack.dto.JobRequest;
 import com.CareerTrack.dto.JobResponse;
@@ -59,6 +62,19 @@ public class JobServiceImpl implements JobService{
         //converting job entity-> job response
         return maptoJobResponse(savedJob);
     }
+
+   @Override
+   public List<JobResponse> getJobs() {
+    List<Job> jobs=jobRepository.findAll();
+     List<JobResponse> jobResponses=new ArrayList<>();
+    //job->job response
+    for(Job getJob : jobs){
+        JobResponse jobRespons=maptoJobResponse(getJob);
+        jobResponses.add(jobRespons);
+
+    }
+       return jobResponses;
+   }
 
     }
     
