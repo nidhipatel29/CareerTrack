@@ -35,4 +35,10 @@ public class GlobalExceptionHandler {
 
        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
+
+     @ExceptionHandler(JobNotFoundException.class)
+    public ResponseEntity<String> handleJobNotFoundException(JobNotFoundException exception){
+
+       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
 }
