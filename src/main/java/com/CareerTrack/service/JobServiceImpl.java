@@ -112,6 +112,16 @@ public JobResponse updateJob(Long jobId, JobRequest request) {
     // Step 5: map to response
     return maptoJobResponse(updatedJob);
 }
+
+  @Override
+  public void deleteJob(Long id) {
+
+     Job job = jobRepository.findById(id)
+            .orElseThrow(() -> new JobNotFoundException("Job not found with id: " + id));
+   
+    jobRepository.delete(job);
+
+  }
 }
     
 
