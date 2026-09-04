@@ -41,7 +41,6 @@ public class User {
     public User() {
     }
 
-    
 
     public User(String firstName, String lastName, String email, String password, Role role) {
         this.firstName = firstName;
@@ -60,6 +59,9 @@ public class User {
 
     // Getters and setters
 
+    public Long getId() {
+        return id;
+    }
 
     public String getFirstName() {
         return firstName;
