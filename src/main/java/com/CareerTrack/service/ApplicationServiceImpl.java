@@ -1,6 +1,7 @@
 package com.CareerTrack.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import com.CareerTrack.dto.ApplicationRequest;
 import com.CareerTrack.dto.ApplicationResponse;
 import com.CareerTrack.entity.Job;
 import com.CareerTrack.entity.User;
+import com.CareerTrack.exception.ApplicationNotFoundException;
 import com.CareerTrack.exception.JobNotFoundException;
 import com.CareerTrack.exception.UserNotFoundException;
 import com.CareerTrack.repository.ApplicationRepository;
@@ -40,18 +42,17 @@ public class ApplicationServiceImpl implements ApplicationService {
         Company company = job.getCompany();
 
         return new ApplicationResponse(
-            application.getId(),
-            user.getId(),
-            user.getFirstName() + " " + user.getLastName(),
-            job.getId(),
-            job.getTitle(),
-            company.getId(),
-            company.getName(),
-            application.getStatus(),
-            application.getAppliedDate(),
-            application.getNotes(),
-            application.getCreatedAt()
-    );
+                application.getId(),
+                user.getId(),
+                user.getFirstName() + " " + user.getLastName(),
+                job.getId(),
+                job.getTitle(),
+                company.getId(),
+                company.getName(),
+                application.getStatus(),
+                application.getAppliedDate(),
+                application.getNotes(),
+                application.getCreatedAt());
     }
 
     @Override
@@ -84,26 +85,53 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public List<ApplicationResponse> getAllApplications() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllApplications'");
+        List<Application> applications = applicationRepository.findAll();
+        return applications.stream().map(this::mapToResponse).toList();
+
     }
 
     @Override
     public ApplicationResponse getApplicationById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getApplicationById'");
+        Application application = applicationRepository.findById(id).orElseThrow(() -> new ApplicationNotFoundException(
+                "Application not found with id: " + id));
+        return mapToResponse(application);
     }
 
     @Override
     public ApplicationResponse updateApplication(Long id, ApplicationRequest applicationRequest) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateApplication'");
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new ApplicationNotFoundException("application is not found: " + id));
+
+        // update application in DB
+        User user = userRepository.findById(applicationRequest.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("user is not found: " + applicationRequest.getUserId()));
+
+        Job job = jobRepository.findById(applicationRequest.getJobId())
+                .orElseThrow(() -> new JobNotFoundException("job is not found: " + applicationRequest.getJobId()));
+
+        application.setUser(user);
+        application.setJob(job);
+        if (applicationRequest.getAppliedDate() != null) {
+            application.setAppliedDate(applicationRequest.getAppliedDate());
+        }
+        application.setNotes(applicationRequest.getNotes());
+        application.setStatus(applicationRequest.getStatus());
+
+        // update in DB
+        Application updatedApplication = applicationRepository.save(application);
+        return mapToResponse(updatedApplication);
+
     }
 
     @Override
     public void deleteApplication(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteApplication'");
+        Application application=applicationRepository.findById(id).
+                        orElseThrow(() -> new ApplicationNotFoundException("application is not found: " + id));
+      
+     applicationRepository.delete(application);
+
+
+
     }
 
 }
