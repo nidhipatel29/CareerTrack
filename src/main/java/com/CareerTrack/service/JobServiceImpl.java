@@ -8,6 +8,7 @@ import com.CareerTrack.dto.JobResponse;
 import com.CareerTrack.entity.Company;
 import com.CareerTrack.entity.Job;
 import com.CareerTrack.exception.CompanyNotFoundException;
+import com.CareerTrack.exception.JobNotFoundException;
 import com.CareerTrack.repository.CompanyRepository;
 import com.CareerTrack.repository.JobRepository;
 
@@ -74,6 +75,15 @@ public class JobServiceImpl implements JobService{
 
     }
        return jobResponses;
+   }
+
+   @Override
+   public JobResponse getJobById(Long id) {
+    Job retrivedJob=jobRepository.findById(id).
+                                 orElseThrow(() -> new JobNotFoundException("job not found with id: " + id));
+
+
+    return maptoJobResponse(retrivedJob);
    }
 
     }

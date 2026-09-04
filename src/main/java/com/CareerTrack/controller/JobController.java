@@ -5,14 +5,14 @@ import com.CareerTrack.dto.JobRequest;
 import com.CareerTrack.dto.JobResponse;
 import com.CareerTrack.service.JobService;
 import jakarta.validation.Valid;
-
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 
 
@@ -42,6 +42,13 @@ public class JobController {
         return jobService.getJobs();
     
   }
+
+  @GetMapping("{id}")
+  public JobResponse getJobById(@PathVariable Long id){
+    return jobService.getJobById(id);
+
+  }
+  
   
     
     

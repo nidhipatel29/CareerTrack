@@ -11,5 +11,7 @@ public interface JobService {
      JobResponse createJob(JobRequest request);
 
      List<JobResponse> getJobs();
+
+     JobResponse getJobById(Long id);
     
 } 
