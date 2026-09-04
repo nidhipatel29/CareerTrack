@@ -21,9 +21,9 @@ public class GlobalExceptionHandler {
         Map<String,String> errors=new HashMap<>();
 
         //store the field errors
-        List<FieldError> feildErrors = exception.getBindingResult().getFieldErrors();
+        List<FieldError> fieldErrors = exception.getBindingResult().getFieldErrors();
 
-        for (FieldError fieldError : feildErrors) {
+        for (FieldError fieldError : fieldErrors) {
             errors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
         return ResponseEntity.badRequest().body(errors);
@@ -38,6 +38,12 @@ public class GlobalExceptionHandler {
 
      @ExceptionHandler(JobNotFoundException.class)
     public ResponseEntity<String> handleJobNotFoundException(JobNotFoundException exception){
+
+       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
+     @ExceptionHandler(ApplicationNotFoundException.class)
+    public ResponseEntity<String> handleApplicationNotFoundException(ApplicationNotFoundException exception){
 
        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
