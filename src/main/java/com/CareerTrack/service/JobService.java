@@ -13,5 +13,7 @@ public interface JobService {
      List<JobResponse> getJobs();
 
      JobResponse getJobById(Long id);
+
+     JobResponse updateJob(Long id, JobRequest request);
     
 } 

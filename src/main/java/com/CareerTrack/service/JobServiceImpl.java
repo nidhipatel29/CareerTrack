@@ -86,6 +86,32 @@ public class JobServiceImpl implements JobService{
     return maptoJobResponse(retrivedJob);
    }
 
-    }
+  @Override
+public JobResponse updateJob(Long jobId, JobRequest request) {
+
+    // Step 1: does the Job exist?
+    Job job = jobRepository.findById(jobId)
+            .orElseThrow(() -> new JobNotFoundException("Job not found with id: " + jobId));
+
+    // Step 2: does the Company (from the request) exist?
+    Company company = companyRepository.findById(request.getCompanyId())
+            .orElseThrow(() -> new CompanyNotFoundException(
+                    "Company not found with id: " + request.getCompanyId()));
+
+    // Step 3: both exist → update Job fields
+    job.setTitle(request.getTitle());
+    job.setDescription(request.getDescription());
+    job.setLocation(request.getLocation());
+    job.setEmploymentType(request.getEmploymentType());
+    job.setSalary(request.getSalary());
+    job.setCompany(company);
+
+    // Step 4: save
+    Job updatedJob = jobRepository.save(job);
+
+    // Step 5: map to response
+    return maptoJobResponse(updatedJob);
+}
+}
     
 
