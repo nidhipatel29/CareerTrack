@@ -64,8 +64,6 @@ public class Application {
     public Long getId() {
         return id;
     }
-
-
     public User getUser() {
         return user;
     }
