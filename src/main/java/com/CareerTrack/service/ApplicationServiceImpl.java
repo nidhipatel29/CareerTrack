@@ -13,6 +13,7 @@ import com.CareerTrack.dto.ApplicationResponse;
 import com.CareerTrack.entity.Job;
 import com.CareerTrack.entity.User;
 import com.CareerTrack.exception.ApplicationNotFoundException;
+import com.CareerTrack.exception.DuplicateApplicationException;
 import com.CareerTrack.exception.JobNotFoundException;
 import com.CareerTrack.exception.UserNotFoundException;
 import com.CareerTrack.repository.ApplicationRepository;
@@ -63,6 +64,15 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         Job job = jobRepository.findById(applicationRequest.getJobId())
                 .orElseThrow(() -> new JobNotFoundException("job is not found: " + applicationRequest.getJobId()));
+
+        boolean alreadyExists = applicationRepository.existsByUserIdAndJobId(
+                applicationRequest.getUserId(),
+                applicationRequest.getJobId());
+
+        if (alreadyExists) {
+            // throw duplicate application exception
+            throw new DuplicateApplicationException("User has already applied for this job");
+        }
 
         Application application = new Application();
         application.setUser(user);
@@ -123,7 +133,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     }
 
-    //Get Applications By User Id
+    // Get Applications By User Id
     @Override
     public List<ApplicationResponse> getApplicationsByUserId(Long userId) {
         User user = userRepository.findById(userId)
@@ -143,11 +153,11 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public List<ApplicationResponse> getApplicationByJobId(Long jobId) {
-         jobRepository.findById(jobId)
-            .orElseThrow(() -> new JobNotFoundException(
-                    "Job not found with id: " + jobId));
+        jobRepository.findById(jobId)
+                .orElseThrow(() -> new JobNotFoundException(
+                        "Job not found with id: " + jobId));
 
-        return  applicationRepository.findByJobId(jobId).stream().map(this::mapToResponse).toList();
+        return applicationRepository.findByJobId(jobId).stream().map(this::mapToResponse).toList();
     }
 
 }

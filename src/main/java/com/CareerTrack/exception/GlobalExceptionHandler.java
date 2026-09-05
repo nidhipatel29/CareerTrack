@@ -55,4 +55,12 @@ public class GlobalExceptionHandler {
     }
 
 
+    
+    @ExceptionHandler(DuplicateApplicationException.class)
+     public ResponseEntity<String> handleDuplicateApplicationException(DuplicateApplicationException exception){
+
+       return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+    }
+
+
 }
