@@ -123,15 +123,22 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     }
 
+    //Get Applications By User Id
+    @Override
+    public List<ApplicationResponse> getApplicationsByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("user is not found: " + userId));
+
+        List<Application> applications = applicationRepository.findByUserId(userId);
+        return applications.stream().map(this::mapToResponse).toList();
+    }
+
     @Override
     public void deleteApplication(Long id) {
-        Application application=applicationRepository.findById(id).
-                        orElseThrow(() -> new ApplicationNotFoundException("application is not found: " + id));
-      
-     applicationRepository.delete(application);
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new ApplicationNotFoundException("application is not found: " + id));
 
-
-
+        applicationRepository.delete(application);
     }
 
 }

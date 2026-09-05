@@ -23,4 +23,8 @@ public interface ApplicationService {
 
     // DELETE
     void deleteApplication(Long id);
+
+    //Get Application By UserId
+    List<ApplicationResponse> getApplicationsByUserId(Long userId);
+
 }

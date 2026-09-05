@@ -46,6 +46,12 @@ public class ApplicationController {
         return applicationService.getApplicationById(id);
     }
 
+    @GetMapping("user/{userId}")
+    public List<ApplicationResponse> getApplicationsOfUserId(@PathVariable Long userId){
+      
+      return  applicationService.getApplicationsByUserId(userId);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ApplicationResponse> updateApplication(
             @PathVariable Long id,
