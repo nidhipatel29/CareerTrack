@@ -27,4 +27,7 @@ public interface ApplicationService {
     //Get Application By UserId
     List<ApplicationResponse> getApplicationsByUserId(Long userId);
 
+    //Get applications by jobId
+    List<ApplicationResponse> getApplicationByJobId(Long jobId);
+
 }

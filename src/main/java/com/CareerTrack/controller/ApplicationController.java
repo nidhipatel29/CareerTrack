@@ -18,6 +18,8 @@ import com.CareerTrack.dto.ApplicationResponse;
 import com.CareerTrack.service.ApplicationService;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/applications")
@@ -52,6 +54,12 @@ public class ApplicationController {
       return  applicationService.getApplicationsByUserId(userId);
     }
 
+    @GetMapping("job/{jobId}")
+
+    public List<ApplicationResponse> getApplicationByJobId(@PathVariable  Long jobId) {
+        return  applicationService.getApplicationByJobId(jobId);
+    }
+    
     @PutMapping("/{id}")
     public ResponseEntity<ApplicationResponse> updateApplication(
             @PathVariable Long id,

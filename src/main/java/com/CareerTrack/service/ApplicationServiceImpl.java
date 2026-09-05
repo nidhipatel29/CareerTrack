@@ -141,4 +141,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         applicationRepository.delete(application);
     }
 
+    @Override
+    public List<ApplicationResponse> getApplicationByJobId(Long jobId) {
+         jobRepository.findById(jobId)
+            .orElseThrow(() -> new JobNotFoundException(
+                    "Job not found with id: " + jobId));
+
+        return  applicationRepository.findByJobId(jobId).stream().map(this::mapToResponse).toList();
+    }
+
 }
