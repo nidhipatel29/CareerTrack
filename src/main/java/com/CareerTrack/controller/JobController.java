@@ -1,8 +1,11 @@
 package com.CareerTrack.controller;
+
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.CareerTrack.dto.JobRequest;
 import com.CareerTrack.dto.JobResponse;
+import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.service.JobService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -15,22 +18,17 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-
-
-
 @RestController
 @RequestMapping("/api/jobs")
 public class JobController {
 
-    private JobService jobService;
-    
+  private JobService jobService;
 
-     public JobController(JobService jobService) {
-        this.jobService = jobService;
-    }
+  public JobController(JobService jobService) {
+    this.jobService = jobService;
+  }
 
-
- @PostMapping
+  @PostMapping
   public ResponseEntity<JobResponse> createJob(@Valid @RequestBody JobRequest jobRequest) {
     JobResponse theJobResponse = jobService.createJob(jobRequest);
 
@@ -40,30 +38,44 @@ public class JobController {
   }
 
   @GetMapping("")
-  public List<JobResponse> viewAllJobs(){
-        return jobService.getJobs();
-    
+  public List<JobResponse> viewAllJobs() {
+    return jobService.getJobs();
+
   }
 
   @GetMapping("{id}")
-  public JobResponse getJobById(@PathVariable Long id){
+  public JobResponse getJobById(@PathVariable Long id) {
     return jobService.getJobById(id);
 
   }
 
-  @PutMapping("{id}")
-  public ResponseEntity<JobResponse> updateJob(@PathVariable Long id ,@Valid @RequestBody JobRequest jobRequest){
-    JobResponse jobResponse=jobService.updateJob(id, jobRequest);
-      return ResponseEntity.ok(jobResponse);
+  @GetMapping("/search")
+  public List<JobResponse> searchJobsByTitle(
+      @RequestParam String title) {
+
+    return jobService.searchJobsByTitle(title);
   }
 
- @DeleteMapping("/{id}")
-public ResponseEntity<Void> deleteJob(@PathVariable Long id) {
+  @GetMapping("/filter")
+  public List<JobResponse> filterJobByLocation(@RequestParam String location) {
+    return jobService.searchJobByLocation(location);
+  }
+
+  @GetMapping("/filter/employment-type")
+  public List<JobResponse> filterJobByEmployementType(@RequestParam EmploymentType employment) {
+    return jobService.filterJobByEmployementType(employment);
+  }
+
+  @PutMapping("{id}")
+  public ResponseEntity<JobResponse> updateJob(@PathVariable Long id, @Valid @RequestBody JobRequest jobRequest) {
+    JobResponse jobResponse = jobService.updateJob(id, jobRequest);
+    return ResponseEntity.ok(jobResponse);
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteJob(@PathVariable Long id) {
     jobService.deleteJob(id);
     return ResponseEntity.noContent().build();
-}
-  
-  
-    
-    
+  }
+
 }

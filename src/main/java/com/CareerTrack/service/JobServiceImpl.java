@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.CareerTrack.dto.JobRequest;
 import com.CareerTrack.dto.JobResponse;
 import com.CareerTrack.entity.Company;
+import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.entity.Job;
 import com.CareerTrack.exception.CompanyNotFoundException;
 import com.CareerTrack.exception.JobNotFoundException;
@@ -121,6 +122,22 @@ public JobResponse updateJob(Long jobId, JobRequest request) {
    
     jobRepository.delete(job);
 
+  }
+
+  @Override
+  public List<JobResponse> searchJobsByTitle(String title) {
+   List<Job> jobs=jobRepository.findByTitleContainingIgnoreCase(title);
+   return jobs.stream().map(this::maptoJobResponse).toList(); 
+  }
+
+  @Override
+  public List<JobResponse> searchJobByLocation(String location) {
+    return  jobRepository.findByLocationIgnoreCase(location).stream().map(this::maptoJobResponse).toList();
+}
+
+  @Override
+  public List<JobResponse> filterJobByEmployementType(EmploymentType employmentType) {
+    return jobRepository.findByEmploymentType(employmentType).stream().map(this::maptoJobResponse).toList();
   }
 }
     

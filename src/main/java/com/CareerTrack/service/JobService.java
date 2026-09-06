@@ -5,6 +5,7 @@ import java.util.List;
 import com.CareerTrack.dto.JobRequest;
 import com.CareerTrack.dto.JobResponse;
 import com.CareerTrack.entity.Company;
+import com.CareerTrack.entity.EmploymentType;
 
 public interface JobService {
 
@@ -17,5 +18,11 @@ public interface JobService {
      JobResponse updateJob(Long id, JobRequest request);
 
      void deleteJob(Long id);
+
+     List<JobResponse> searchJobsByTitle(String title);
+
+     List<JobResponse> searchJobByLocation(String location);
+
+     List<JobResponse> filterJobByEmployementType(EmploymentType employmentType);
     
 } 
