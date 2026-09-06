@@ -26,5 +26,11 @@ public interface JobService {
      List<JobResponse> filterJobByEmployementType(EmploymentType employmentType);
 
      List<JobResponse> filterByCompanyId(Long id);
+
+     List<JobResponse> filterJobs(
+        String location,
+        EmploymentType employmentType,
+        Long companyId
+);
     
 } 

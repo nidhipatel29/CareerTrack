@@ -67,8 +67,18 @@ public class JobController {
   }
 
   @GetMapping("/filter/company_id")
-   public List<JobResponse> filterJobByCompanyId(@RequestParam Long id) {
+  public List<JobResponse> filterJobByCompanyId(@RequestParam Long id) {
     return jobService.filterByCompanyId(id);
+  }
+
+  @GetMapping("/filters")
+  public List<JobResponse> filterJobs(
+      @RequestParam(required = false) String location,
+      @RequestParam(required = false) EmploymentType employmentType,
+      @RequestParam(required = false) Long companyId) {
+
+    // service call
+    return  jobService.filterJobs(location, employmentType, companyId).stream().toList();
   }
 
   @PutMapping("{id}")

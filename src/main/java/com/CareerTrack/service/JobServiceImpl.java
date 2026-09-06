@@ -1,7 +1,7 @@
 package com.CareerTrack.service;
 import java.util.ArrayList;
 import java.util.List;
-
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import com.CareerTrack.dto.JobRequest;
 import com.CareerTrack.dto.JobResponse;
@@ -151,6 +151,64 @@ public JobResponse updateJob(Long jobId, JobRequest request) {
         .stream()
         .map(this::maptoJobResponse)
         .toList();
+}
+
+ @Override
+public List<JobResponse> filterJobs(
+        String location,
+        EmploymentType employmentType,
+        Long companyId) {
+
+    // Start with an always-true condition
+    Specification<Job> specification = Specification.where(
+            (root, query, criteriaBuilder) ->
+                    criteriaBuilder.conjunction()
+    );
+
+    // LOCATION FILTER
+    if (location != null && !location.isBlank()) {
+        specification = specification.and(
+                (root, query, criteriaBuilder) ->
+                        criteriaBuilder.equal(
+                                criteriaBuilder.lower(root.get("location")),
+                                location.toLowerCase()
+                        )
+        );
+    }
+
+    // EMPLOYMENT TYPE FILTER
+    if (employmentType != null) {
+        specification = specification.and(
+                (root, query, criteriaBuilder) ->
+                        criteriaBuilder.equal(
+                                root.get("employmentType"),
+                                employmentType
+                        )
+        );
+    }
+
+    // COMPANY FILTER
+    if (companyId != null) {
+
+        // Verify that the company actually exists
+        companyRepository.findById(companyId)
+                .orElseThrow(() ->
+                        new CompanyNotFoundException(
+                                "Company is not found: " + companyId));
+
+        specification = specification.and(
+                (root, query, criteriaBuilder) ->
+                        criteriaBuilder.equal(
+                                root.get("company").get("id"),
+                                companyId
+                        )
+        );
+    }
+
+    return jobRepository.findAll(specification)
+            .stream()
+            .map(this::maptoJobResponse)
+            .toList();
 }
 }
     
