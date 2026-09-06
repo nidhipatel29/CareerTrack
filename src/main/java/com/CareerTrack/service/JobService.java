@@ -1,7 +1,7 @@
 package com.CareerTrack.service;
 
 import java.util.List;
-
+import org.springframework.data.domain.Page;
 import com.CareerTrack.dto.JobRequest;
 import com.CareerTrack.dto.JobResponse;
 import com.CareerTrack.entity.Company;
@@ -30,7 +30,9 @@ public interface JobService {
      List<JobResponse> filterJobs(
         String location,
         EmploymentType employmentType,
-        Long companyId
-);
+        Long companyId);
+
+     Page<JobResponse> getJobsWithPagination(int page, int size);
+
     
 } 

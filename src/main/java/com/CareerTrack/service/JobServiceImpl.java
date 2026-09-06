@@ -1,6 +1,10 @@
 package com.CareerTrack.service;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.boot.data.autoconfigure.web.DataWebProperties.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import com.CareerTrack.dto.JobRequest;
@@ -210,6 +214,13 @@ public List<JobResponse> filterJobs(
             .map(this::maptoJobResponse)
             .toList();
 }
+
+ @Override
+ public Page<JobResponse> getJobsWithPagination(int page, int size) {
+    PageRequest pageable = PageRequest.of(page, size);
+    Page<Job> jobs=jobRepository.findAll(pageable);
+    return jobs.map(this::maptoJobResponse);
+ }
 }
     
 

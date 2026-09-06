@@ -9,6 +9,8 @@ import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.service.JobService;
 import jakarta.validation.Valid;
 import java.util.List;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,6 +83,15 @@ public class JobController {
     return  jobService.filterJobs(location, employmentType, companyId).stream().toList();
   }
 
+@GetMapping("/page")
+public Page<JobResponse> getSelectedJobs(
+        @RequestParam int page,
+        @RequestParam int size) {
+
+    return jobService.getJobsWithPagination(page, size);
+}
+  
+
   @PutMapping("{id}")
   public ResponseEntity<JobResponse> updateJob(@PathVariable Long id, @Valid @RequestBody JobRequest jobRequest) {
     JobResponse jobResponse = jobService.updateJob(id, jobRequest);
@@ -92,5 +103,7 @@ public class JobController {
     jobService.deleteJob(id);
     return ResponseEntity.noContent().build();
   }
+
+  
 
 }
