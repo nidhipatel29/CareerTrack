@@ -66,6 +66,11 @@ public class JobController {
     return jobService.filterJobByEmployementType(employment);
   }
 
+  @GetMapping("/filter/company_id")
+   public List<JobResponse> filterJobByCompanyId(@RequestParam Long id) {
+    return jobService.filterByCompanyId(id);
+  }
+
   @PutMapping("{id}")
   public ResponseEntity<JobResponse> updateJob(@PathVariable Long id, @Valid @RequestBody JobRequest jobRequest) {
     JobResponse jobResponse = jobService.updateJob(id, jobRequest);

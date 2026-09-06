@@ -139,6 +139,19 @@ public JobResponse updateJob(Long jobId, JobRequest request) {
   public List<JobResponse> filterJobByEmployementType(EmploymentType employmentType) {
     return jobRepository.findByEmploymentType(employmentType).stream().map(this::maptoJobResponse).toList();
   }
+
+  @Override
+  public List<JobResponse> filterByCompanyId(Long id) {
+    companyRepository.findById(id)
+        .orElseThrow(() ->
+                new CompanyNotFoundException(
+                        "Company is not found: " + id));
+
+   return jobRepository.findByCompanyId(id)
+        .stream()
+        .map(this::maptoJobResponse)
+        .toList();
+}
 }
     
 
