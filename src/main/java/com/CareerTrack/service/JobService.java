@@ -28,13 +28,20 @@ public interface JobService {
      List<JobResponse> filterByCompanyId(Long id);
 
      List<JobResponse> filterJobs(
-        String location,
-        EmploymentType employmentType,
-        Long companyId);
+               String location,
+               EmploymentType employmentType,
+               Long companyId);
 
      Page<JobResponse> getJobsWithPagination(int page, int size, String sortBy, String direction);
 
+     Page<JobResponse> filterJobsWithPagination(
+               String title,
+               String location,
+               EmploymentType employmentType,
+               Long companyId,
+               int page,
+               int size,
+               String sortBy,
+               String direction);
 
-
-    
-} 
+}

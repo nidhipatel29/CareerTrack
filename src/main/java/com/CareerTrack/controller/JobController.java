@@ -51,13 +51,6 @@ public class JobController {
 
   }
 
-  @GetMapping("/search")
-  public List<JobResponse> searchJobsByTitle(
-      @RequestParam String title) {
-
-    return jobService.searchJobsByTitle(title);
-  }
-
   @GetMapping("/filter")
   public List<JobResponse> filterJobByLocation(@RequestParam String location) {
     return jobService.searchJobByLocation(location);
@@ -80,19 +73,32 @@ public class JobController {
       @RequestParam(required = false) Long companyId) {
 
     // service call
-    return  jobService.filterJobs(location, employmentType, companyId).stream().toList();
+    return jobService.filterJobs(location, employmentType, companyId).stream().toList();
   }
 
-@GetMapping("/page")
-public Page<JobResponse> getSelectedJobs(
-       @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "5") int size,
-        @RequestParam(defaultValue = "createdAt") String sortBy,
-        @RequestParam(defaultValue = "desc") String direction) {
+  @GetMapping("/page")
+  public Page<JobResponse> getSelectedJobs(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "5") int size,
+      @RequestParam(defaultValue = "createdAt") String sortBy,
+      @RequestParam(defaultValue = "desc") String direction) {
 
-    return jobService.getJobsWithPagination(page, size,sortBy,direction);
-}
-  
+    return jobService.getJobsWithPagination(page, size, sortBy, direction);
+  }
+
+  @GetMapping("/search")
+  public Page<JobResponse> searchJobs(
+      @RequestParam(required = false) String title,
+      @RequestParam(required = false) String location,
+      @RequestParam(required = false) EmploymentType employmentType,
+      @RequestParam(required = false) Long companyId,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "5") int size,
+      @RequestParam(defaultValue = "createdAt") String sortBy,
+      @RequestParam(defaultValue = "desc") String direction) {
+
+    return jobService.filterJobsWithPagination(title,location, employmentType, companyId, page, size, sortBy, direction);
+  }
 
   @PutMapping("{id}")
   public ResponseEntity<JobResponse> updateJob(@PathVariable Long id, @Valid @RequestBody JobRequest jobRequest) {
@@ -105,7 +111,5 @@ public Page<JobResponse> getSelectedJobs(
     jobService.deleteJob(id);
     return ResponseEntity.noContent().build();
   }
-
-  
 
 }

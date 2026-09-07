@@ -31,7 +31,7 @@ public class JobServiceImpl implements JobService {
         this.companyRepository = companyRepository;
     }
 
-    private JobResponse maptoJobResponse(Job job) {
+    private JobResponse mapToJobResponse(Job job) {
 
         return new JobResponse(
                 job.getId(),
@@ -66,7 +66,7 @@ public class JobServiceImpl implements JobService {
         Job savedJob = jobRepository.save(job);
 
         // converting job entity-> job response
-        return maptoJobResponse(savedJob);
+        return mapToJobResponse(savedJob);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class JobServiceImpl implements JobService {
         List<JobResponse> jobResponses = new ArrayList<>();
         // job->job response
         for (Job getJob : jobs) {
-            JobResponse jobRespons = maptoJobResponse(getJob);
+            JobResponse jobRespons = mapToJobResponse(getJob);
             jobResponses.add(jobRespons);
 
         }
@@ -87,7 +87,7 @@ public class JobServiceImpl implements JobService {
         Job retrivedJob = jobRepository.findById(id)
                 .orElseThrow(() -> new JobNotFoundException("job not found with id: " + id));
 
-        return maptoJobResponse(retrivedJob);
+        return mapToJobResponse(retrivedJob);
     }
 
     @Override
@@ -114,7 +114,7 @@ public class JobServiceImpl implements JobService {
         Job updatedJob = jobRepository.save(job);
 
         // Step 5: map to response
-        return maptoJobResponse(updatedJob);
+        return mapToJobResponse(updatedJob);
     }
 
     @Override
@@ -130,17 +130,17 @@ public class JobServiceImpl implements JobService {
     @Override
     public List<JobResponse> searchJobsByTitle(String title) {
         List<Job> jobs = jobRepository.findByTitleContainingIgnoreCase(title);
-        return jobs.stream().map(this::maptoJobResponse).toList();
+        return jobs.stream().map(this::mapToJobResponse).toList();
     }
 
     @Override
     public List<JobResponse> searchJobByLocation(String location) {
-        return jobRepository.findByLocationIgnoreCase(location).stream().map(this::maptoJobResponse).toList();
+        return jobRepository.findByLocationIgnoreCase(location).stream().map(this::mapToJobResponse).toList();
     }
 
     @Override
     public List<JobResponse> filterJobByEmployementType(EmploymentType employmentType) {
-        return jobRepository.findByEmploymentType(employmentType).stream().map(this::maptoJobResponse).toList();
+        return jobRepository.findByEmploymentType(employmentType).stream().map(this::mapToJobResponse).toList();
     }
 
     @Override
@@ -151,7 +151,7 @@ public class JobServiceImpl implements JobService {
 
         return jobRepository.findByCompanyId(id)
                 .stream()
-                .map(this::maptoJobResponse)
+                .map(this::mapToJobResponse)
                 .toList();
     }
 
@@ -197,27 +197,26 @@ public class JobServiceImpl implements JobService {
 
         return jobRepository.findAll(specification)
                 .stream()
-                .map(this::maptoJobResponse)
+                .map(this::mapToJobResponse)
                 .toList();
     }
 
     @Override
     public Page<JobResponse> getJobsWithPagination(int page, int size, String sortBy, String direction) {
 
-      //set API validation for page and size
-      if(page<0 || size <0 || size >100){
-           throw new InvalidRequestException("wrong page or size value");
-      }
+        // set API validation for page and size
+        if (page < 0 || size < 1 || size > 100) {
+            throw new InvalidRequestException("wrong page or size value");
+        }
 
-
-        //set API validation for sorting (by field name)
+        // set API validation for sorting (by field name)
         Set<String> allowedSortFields = Set.of("title", "salary", "createdAt", "location");
         if (!allowedSortFields.contains(sortBy)) {
             throw new InvalidRequestException(
-                    "Invalid sort field: " + sortBy +  ". Allowed fields are: title, salary, createdAt, location");
+                    "Invalid sort field: " + sortBy + ". Allowed fields are: title, salary, createdAt, location");
         }
 
-        //set API validation for direction
+        // set API validation for direction
         Sort.Direction sortDirection;
         if (direction.equalsIgnoreCase("desc")) {
             sortDirection = Sort.Direction.DESC;
@@ -232,6 +231,103 @@ public class JobServiceImpl implements JobService {
         Sort sort = Sort.by(sortDirection, sortBy);
         PageRequest pageable = PageRequest.of(page, size, sort);
         Page<Job> jobs = jobRepository.findAll(pageable);
-        return jobs.map(this::maptoJobResponse);
+        return jobs.map(this::mapToJobResponse);
+    }
+
+    @Override
+    public Page<JobResponse> filterJobsWithPagination(
+            String title,
+            String location,
+            EmploymentType employmentType,
+            Long companyId,
+            int page,
+            int size,
+            String sortBy,
+            String direction) {
+
+        // 1. Build specification
+
+        Specification<Job> specification = Specification.where(
+                (root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
+
+        // 1.a>>>>>>>LOCATION FILTER
+        if (location != null && !location.isBlank()) {
+            specification = specification.and(
+                    (root, query, criteriaBuilder) -> criteriaBuilder.equal(
+                            criteriaBuilder.lower(root.get("location")),
+                            location.toLowerCase()));
+        }
+
+        //1.b>>>>>>>>>>> EMPLOYMENT TYPE FILTER
+        if (employmentType != null) {
+            specification = specification.and(
+                    (root, query, criteriaBuilder) -> criteriaBuilder.equal(
+                            root.get("employmentType"),
+                            employmentType));
+        }
+
+        //1.c>>>>>>>COMPANY FILTER
+        if (companyId != null) {
+
+            // Verify that the company actually exists
+            companyRepository.findById(companyId)
+                    .orElseThrow(() -> new CompanyNotFoundException(
+                            "Company is not found: " + companyId));
+
+            specification = specification.and(
+                    (root, query, criteriaBuilder) -> criteriaBuilder.equal(
+                            root.get("company").get("id"),
+                            companyId));
+        }
+
+        //1.d >>>>>>>>TITLE FILTER
+        if (title != null && !title.isBlank()) {
+            specification = specification.and(
+                    (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                            criteriaBuilder.lower(root.get("title")),
+                            "%" + title.toLowerCase() + "%"));
+        }
+
+
+        // 2. Validate page/size
+         if (page < 0 || size < 1 || size > 100) {
+            throw new InvalidRequestException("wrong page or size value");
+        }
+
+        // 3. Validate sortBy
+         Set<String> allowedSortFields = Set.of("title", "salary", "createdAt", "location");
+        if (!allowedSortFields.contains(sortBy)) {
+            throw new InvalidRequestException(
+                    "Invalid sort field: " + sortBy + ". Allowed fields are: title, salary, createdAt, location");
+        }
+
+
+        // 4. Validate direction
+         Sort.Direction sortDirection;
+        if (direction.equalsIgnoreCase("desc")) {
+            sortDirection = Sort.Direction.DESC;
+
+        } else if (direction.equalsIgnoreCase("asc")) {
+            sortDirection = Sort.Direction.ASC;
+
+        } else {
+            // invalid direction
+            throw new InvalidRequestException("Invalid direction:" + direction);
+        }
+
+        // 5. Create Sort
+        Sort sort = Sort.by(sortDirection, sortBy);
+
+
+        // 6. Create PageRequest
+        PageRequest pageable = PageRequest.of(page, size, sort);
+
+
+        // 7. findAll(specification, pageable)
+
+        // 8. map Page<Job> -> Page<JobResponse>
+
+        return jobRepository.findAll(specification,pageable).map(this::mapToJobResponse);
+
     }
 }
