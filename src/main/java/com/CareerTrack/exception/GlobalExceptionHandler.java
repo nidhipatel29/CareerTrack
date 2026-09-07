@@ -70,4 +70,9 @@ public class GlobalExceptionHandler {
        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
+      @ExceptionHandler(EmailAlreadyExistsException.class)
+     public ResponseEntity<String> handleEmailAlreadyExistsException(EmailAlreadyExistsException exception){
+
+       return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+    }
 }
