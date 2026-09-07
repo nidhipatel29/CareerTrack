@@ -16,6 +16,7 @@ import com.CareerTrack.entity.Company;
 import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.entity.Job;
 import com.CareerTrack.exception.CompanyNotFoundException;
+import com.CareerTrack.exception.InvalidRequestException;
 import com.CareerTrack.exception.InvalidSortDirectionException;
 import com.CareerTrack.exception.InvalidSortFieldException;
 import com.CareerTrack.exception.JobNotFoundException;
@@ -206,10 +207,16 @@ public class JobServiceImpl implements JobService {
     @Override
     public Page<JobResponse> getJobsWithPagination(int page, int size, String sortBy, String direction) {
 
+      //set API validation for page and size
+      if(page<0 || size <0 || size >100){
+           throw new InvalidRequestException("wrong page or size value");
+      }
+
+
         //set API validation for sorting (by field name)
         Set<String> allowedSortFields = Set.of("title", "salary", "createdAt", "location");
         if (!allowedSortFields.contains(sortBy)) {
-            throw new InvalidSortFieldException(
+            throw new InvalidRequestException(
                     "Invalid sort field: " + sortBy +  ". Allowed fields are: title, salary, createdAt, location");
         }
 
@@ -223,7 +230,7 @@ public class JobServiceImpl implements JobService {
 
         } else {
             // invalid direction
-            throw new InvalidSortDirectionException("Invalid direction:" + direction);
+            throw new InvalidRequestException("Invalid direction:" + direction);
         }
         Sort sort = Sort.by(sortDirection, sortBy);
         PageRequest pageable = PageRequest.of(page, size, sort);

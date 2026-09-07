@@ -62,15 +62,10 @@ public class GlobalExceptionHandler {
        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
 
-    
-    @ExceptionHandler(InvalidSortDirectionException.class)
-     public ResponseEntity<String> handleInvalidSortDirectionException(InvalidSortDirectionException exception){
+   
 
-       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
-    }
-
-     @ExceptionHandler(InvalidSortFieldException.class)
-     public ResponseEntity<String> handleInvalidSortFieldException(InvalidSortFieldException exception){
+     @ExceptionHandler(InvalidRequestException.class)
+     public ResponseEntity<String> handleInvalidRequestException(InvalidRequestException exception){
 
        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
