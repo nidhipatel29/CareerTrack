@@ -2,6 +2,7 @@ package com.CareerTrack.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.boot.data.autoconfigure.web.DataWebProperties.Pageable;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.entity.Job;
 import com.CareerTrack.exception.CompanyNotFoundException;
 import com.CareerTrack.exception.InvalidSortDirectionException;
+import com.CareerTrack.exception.InvalidSortFieldException;
 import com.CareerTrack.exception.JobNotFoundException;
 import com.CareerTrack.repository.CompanyRepository;
 import com.CareerTrack.repository.JobRepository;
@@ -203,6 +205,15 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public Page<JobResponse> getJobsWithPagination(int page, int size, String sortBy, String direction) {
+
+        //set API validation for sorting (by field name)
+        Set<String> allowedSortFields = Set.of("title", "salary", "createdAt", "location");
+        if (!allowedSortFields.contains(sortBy)) {
+            throw new InvalidSortFieldException(
+                    "Invalid sort field: " + sortBy +  ". Allowed fields are: title, salary, createdAt, location");
+        }
+
+        //set API validation for direction
         Sort.Direction sortDirection;
         if (direction.equalsIgnoreCase("desc")) {
             sortDirection = Sort.Direction.DESC;

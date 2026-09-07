@@ -69,4 +69,10 @@ public class GlobalExceptionHandler {
        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
+     @ExceptionHandler(InvalidSortFieldException.class)
+     public ResponseEntity<String> handleInvalidSortFieldException(InvalidSortFieldException exception){
+
+       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
 }
