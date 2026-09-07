@@ -15,6 +15,7 @@ import com.CareerTrack.entity.Company;
 import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.entity.Job;
 import com.CareerTrack.exception.CompanyNotFoundException;
+import com.CareerTrack.exception.InvalidSortDirectionException;
 import com.CareerTrack.exception.JobNotFoundException;
 import com.CareerTrack.repository.CompanyRepository;
 import com.CareerTrack.repository.JobRepository;
@@ -203,11 +204,15 @@ public class JobServiceImpl implements JobService {
     @Override
     public Page<JobResponse> getJobsWithPagination(int page, int size, String sortBy, String direction) {
         Sort.Direction sortDirection;
-
         if (direction.equalsIgnoreCase("desc")) {
             sortDirection = Sort.Direction.DESC;
-        } else {
+
+        } else if (direction.equalsIgnoreCase("asc")) {
             sortDirection = Sort.Direction.ASC;
+
+        } else {
+            // invalid direction
+            throw new InvalidSortDirectionException("Invalid direction:" + direction);
         }
         Sort sort = Sort.by(sortDirection, sortBy);
         PageRequest pageable = PageRequest.of(page, size, sort);

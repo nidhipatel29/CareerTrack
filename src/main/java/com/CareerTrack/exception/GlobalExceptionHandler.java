@@ -62,5 +62,11 @@ public class GlobalExceptionHandler {
        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
 
+    
+    @ExceptionHandler(InvalidSortDirectionException.class)
+     public ResponseEntity<String> handleInvalidSortDirectionException(InvalidSortDirectionException exception){
+
+       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
 
 }
