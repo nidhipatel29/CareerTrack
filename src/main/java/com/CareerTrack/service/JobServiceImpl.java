@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.boot.data.autoconfigure.web.DataWebProperties.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -17,8 +16,6 @@ import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.entity.Job;
 import com.CareerTrack.exception.CompanyNotFoundException;
 import com.CareerTrack.exception.InvalidRequestException;
-import com.CareerTrack.exception.InvalidSortDirectionException;
-import com.CareerTrack.exception.InvalidSortFieldException;
 import com.CareerTrack.exception.JobNotFoundException;
 import com.CareerTrack.repository.CompanyRepository;
 import com.CareerTrack.repository.JobRepository;
