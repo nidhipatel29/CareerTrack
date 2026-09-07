@@ -85,9 +85,10 @@ public class JobController {
 
 @GetMapping("/page")
 public Page<JobResponse> getSelectedJobs(
-        @RequestParam int page,
-        @RequestParam int size,
-      @RequestParam  String sortBy,@RequestParam  String direction) {
+       @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "5") int size,
+        @RequestParam(defaultValue = "createdAt") String sortBy,
+        @RequestParam(defaultValue = "desc") String direction) {
 
     return jobService.getJobsWithPagination(page, size,sortBy,direction);
 }
