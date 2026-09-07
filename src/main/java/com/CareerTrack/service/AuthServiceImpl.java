@@ -7,6 +7,7 @@ import com.CareerTrack.dto.RegisterRequest;
 import com.CareerTrack.dto.RegisterResponse;
 import com.CareerTrack.entity.Role;
 import com.CareerTrack.entity.User;
+import com.CareerTrack.exception.EmailAlreadyExistsException;
 import com.CareerTrack.repository.UserRepository;
 
 @Service 
@@ -30,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("user is already exist!");
+            throw new EmailAlreadyExistsException("user is already exist!");
         }
 
         User user = new User();
