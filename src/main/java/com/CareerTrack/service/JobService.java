@@ -32,9 +32,9 @@ public interface JobService {
         EmploymentType employmentType,
         Long companyId);
 
-     Page<JobResponse> getJobsWithPagination(int page, int size);
+     Page<JobResponse> getJobsWithPagination(int page, int size, String sortBy, String direction);
 
-     
+
 
     
 } 
