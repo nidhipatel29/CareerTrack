@@ -34,5 +34,7 @@ public interface JobService {
 
      Page<JobResponse> getJobsWithPagination(int page, int size);
 
+     
+
     
 } 
