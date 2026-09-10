@@ -1,8 +1,12 @@
 package com.CareerTrack.service;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.core.Authentication;
+import com.CareerTrack.dto.LoginRequest;
+import com.CareerTrack.dto.LoginResponse;
 import com.CareerTrack.dto.RegisterRequest;
 import com.CareerTrack.dto.RegisterResponse;
 import com.CareerTrack.entity.Role;
@@ -16,10 +20,12 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
-    public AuthServiceImpl(UserRepository theUserRepository, PasswordEncoder thePasswordEncoder) {
+    public AuthServiceImpl(UserRepository theUserRepository, PasswordEncoder thePasswordEncoder,AuthenticationManager authenticationManager) {
         this.userRepository = theUserRepository;
         this.passwordEncoder = thePasswordEncoder;
+        this.authenticationManager =authenticationManager;
     }
 
     private RegisterResponse mapToResponse(User user) {
@@ -43,5 +49,24 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepository.save(user);
         return mapToResponse(savedUser);
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest request) {
+
+      authenticationManager.authenticate( new UsernamePasswordAuthenticationToken(
+            request.getEmail(),
+            request.getPassword()
+        ));
+        
+        User user = userRepository
+        .findByEmailIgnoreCase(request.getEmail())
+        .orElseThrow();
+
+        return new LoginResponse(
+        user.getId(),
+        user.getEmail(),
+        user.getRole()
+);
     }
 }
