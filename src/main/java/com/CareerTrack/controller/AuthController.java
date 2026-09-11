@@ -32,8 +32,7 @@ public RegisterResponse register(@Valid @RequestBody RegisterRequest theRegister
 }
 
 @PostMapping("/login")
-public ResponseEntity<LoginResponse> login(
-        @Valid @RequestBody LoginRequest request) {
+public ResponseEntity<LoginResponse> login( @Valid @RequestBody LoginRequest request) {
 
     LoginResponse response = authService.login(request);
 

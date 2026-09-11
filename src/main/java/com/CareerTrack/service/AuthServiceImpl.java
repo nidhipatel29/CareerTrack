@@ -5,6 +5,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import com.CareerTrack.dto.LoginRequest;
 import com.CareerTrack.dto.LoginResponse;
 import com.CareerTrack.dto.RegisterRequest;
@@ -14,18 +16,25 @@ import com.CareerTrack.entity.User;
 import com.CareerTrack.exception.EmailAlreadyExistsException;
 import com.CareerTrack.repository.UserRepository;
 
-@Service 
+@Service
 
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public AuthServiceImpl(UserRepository theUserRepository, PasswordEncoder thePasswordEncoder,AuthenticationManager authenticationManager) {
+    public AuthServiceImpl(UserRepository theUserRepository, PasswordEncoder thePasswordEncoder,
+            AuthenticationManager authenticationManager, JwtService jwtService,
+            CustomUserDetailsService customUserDetailsService) {
         this.userRepository = theUserRepository;
         this.passwordEncoder = thePasswordEncoder;
-        this.authenticationManager =authenticationManager;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
+        this.customUserDetailsService = customUserDetailsService;
+
     }
 
     private RegisterResponse mapToResponse(User user) {
@@ -54,19 +63,19 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponse login(LoginRequest request) {
 
-      authenticationManager.authenticate( new UsernamePasswordAuthenticationToken(
-            request.getEmail(),
-            request.getPassword()
-        ));
-        
-        User user = userRepository
-        .findByEmailIgnoreCase(request.getEmail())
-        .orElseThrow();
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                request.getEmail(),
+                request.getPassword()));
+
+        User user=userRepository.findByEmailIgnoreCase(request.getEmail()).orElseThrow();
+
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(request.getEmail());
+        String token = jwtService.generateToken(userDetails);
 
         return new LoginResponse(
-        user.getId(),
-        user.getEmail(),
-        user.getRole()
-);
+                user.getId(),
+                user.getEmail(),
+                user.getRole(),
+                token);
     }
 }
