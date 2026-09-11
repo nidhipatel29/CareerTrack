@@ -2,6 +2,7 @@ package com.CareerTrack.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,10 +33,17 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
+                        
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login")
                         .permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/api/jobs/**").hasAnyRole("EMPLOYER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/jobs/**").hasAnyRole("EMPLOYER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/jobs/**").hasAnyRole("EMPLOYER", "ADMIN")
+
+                        .requestMatchers("/api/applications/**").hasAnyRole("JOB_SEEKER", "ADMIN")
                         .anyRequest().authenticated())
 
                 .addFilterBefore(
