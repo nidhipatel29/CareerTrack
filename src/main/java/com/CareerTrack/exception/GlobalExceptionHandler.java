@@ -3,7 +3,7 @@ package com.CareerTrack.exception;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -80,4 +80,15 @@ public class GlobalExceptionHandler {
             .status(HttpStatus.UNAUTHORIZED)
             .body("Invalid email or password");
    }
+
+
+
+ @ExceptionHandler(AccessDeniedException.class)
+public ResponseEntity<String> handleAccessDeniedException(
+        AccessDeniedException exception) {
+
+    return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(exception.getMessage());
+}
 }
