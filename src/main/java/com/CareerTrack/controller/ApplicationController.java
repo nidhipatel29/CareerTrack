@@ -1,7 +1,7 @@
 package com.CareerTrack.controller;
 
 import java.util.List;
-
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.security.access.AccessDeniedException;
 import com.CareerTrack.dto.ApplicationRequest;
 import com.CareerTrack.dto.ApplicationResponse;
 import com.CareerTrack.service.ApplicationService;
@@ -20,15 +20,14 @@ import com.CareerTrack.service.ApplicationService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @RestController
 @RequestMapping("/api/applications")
 public class ApplicationController {
 
     private final ApplicationService applicationService;
 
-    public ApplicationController(ApplicationService theApplicationService){
-        this.applicationService=theApplicationService;
+    public ApplicationController(ApplicationService theApplicationService) {
+        this.applicationService = theApplicationService;
     }
 
     @PostMapping
@@ -39,27 +38,31 @@ public class ApplicationController {
     }
 
     @GetMapping
-    public List<ApplicationResponse> getAllApplications() {
-        return applicationService.getAllApplications();
+    public List<ApplicationResponse> getMyApplications(Authentication authentication) {
+
+        String email = authentication.getName();
+        return applicationService.getMyApplications(email);
     }
 
     @GetMapping("/{id}")
-    public ApplicationResponse getApplicationById(@PathVariable Long id) {
-        return applicationService.getApplicationById(id);
+    public ApplicationResponse getApplicationById(@PathVariable Long id,Authentication authentication) {
+
+     String email=authentication.getName();
+     return  applicationService.getApplicationById(id, email);
     }
 
     @GetMapping("user/{userId}")
-    public List<ApplicationResponse> getApplicationsOfUserId(@PathVariable Long userId){
-      
-      return  applicationService.getApplicationsByUserId(userId);
+    public List<ApplicationResponse> getApplicationsOfUserId(@PathVariable Long userId) {
+
+        return applicationService.getApplicationsByUserId(userId);
     }
 
     @GetMapping("job/{jobId}")
 
-    public List<ApplicationResponse> getApplicationByJobId(@PathVariable  Long jobId) {
-        return  applicationService.getApplicationByJobId(jobId);
+    public List<ApplicationResponse> getApplicationByJobId(@PathVariable Long jobId) {
+        return applicationService.getApplicationByJobId(jobId);
     }
-    
+
     @PutMapping("/{id}")
     public ResponseEntity<ApplicationResponse> updateApplication(
             @PathVariable Long id,
