@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.access.AccessDeniedException;
 import com.CareerTrack.entity.Application;
 import com.CareerTrack.entity.Company;
 import com.CareerTrack.dto.ApplicationRequest;
@@ -94,17 +94,29 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public List<ApplicationResponse> getAllApplications() {
-        List<Application> applications = applicationRepository.findAll();
+    public List<ApplicationResponse> getMyApplications(String email) {
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found wit this mail: " + email));
+        Long id = user.getId();
+        List<Application> applications = applicationRepository.findByUserId(id);
         return applications.stream().map(this::mapToResponse).toList();
 
     }
 
     @Override
-    public ApplicationResponse getApplicationById(Long id) {
+    public ApplicationResponse getApplicationById(Long id, String email) {
         Application application = applicationRepository.findById(id).orElseThrow(() -> new ApplicationNotFoundException(
                 "Application not found with id: " + id));
-        return mapToResponse(application);
+
+        String userEmail = application.getUser().getEmail();
+
+        if (userEmail.equalsIgnoreCase(email)) {
+            return mapToResponse(application);
+
+        }
+        else{
+            throw new AccessDeniedException("you do not have access to this id:" + id);
+        }
     }
 
     @Override
