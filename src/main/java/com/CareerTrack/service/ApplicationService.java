@@ -11,10 +11,10 @@ public interface ApplicationService {
     ApplicationResponse createApplication(ApplicationRequest applicationRequest);
 
     // GET ALL
-    List<ApplicationResponse> getAllApplications();
+    List<ApplicationResponse> getMyApplications(String email);
 
     // GET BY ID
-    ApplicationResponse getApplicationById(Long id);
+    ApplicationResponse getApplicationById(Long id,String email);
 
     // UPDATE
     ApplicationResponse updateApplication(
