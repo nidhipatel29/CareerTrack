@@ -7,7 +7,7 @@ import com.CareerTrack.dto.CompanyResponse;
 
 public interface CompanyService {
     
-    CompanyResponse createCompany(CompanyRequest request);
+    CompanyResponse createCompany(CompanyRequest request,String email);
 
     List<CompanyResponse> getCompanies();
 
