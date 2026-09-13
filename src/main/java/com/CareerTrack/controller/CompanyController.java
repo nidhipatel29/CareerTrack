@@ -1,4 +1,5 @@
 package com.CareerTrack.controller;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -27,8 +28,10 @@ public class CompanyController {
   }
 
   @PostMapping
-  public ResponseEntity<CompanyResponse> startComapny(@Valid @RequestBody CompanyRequest companyRequest) {
-    CompanyResponse theCompanyResponse = companyService.createCompany(companyRequest);
+  public ResponseEntity<CompanyResponse> startComapny(@Valid @RequestBody CompanyRequest companyRequest,Authentication authenticatioon) {
+
+    String userName=authenticatioon.getName();
+    CompanyResponse theCompanyResponse = companyService.createCompany(companyRequest,userName);
 
     // converting companyResonce to ResponseEntity
     return ResponseEntity.status(HttpStatus.CREATED).body(theCompanyResponse);
