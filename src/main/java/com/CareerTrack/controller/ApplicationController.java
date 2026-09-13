@@ -66,8 +66,9 @@ public class ApplicationController {
     @PutMapping("/{id}")
     public ResponseEntity<ApplicationResponse> updateApplication(
             @PathVariable Long id,
-            @Valid @RequestBody ApplicationRequest applicationRequest) {
-        ApplicationResponse applicationResponse = applicationService.updateApplication(id, applicationRequest);
+            @Valid @RequestBody ApplicationRequest applicationRequest,Authentication authentication) {
+            String email=authentication.getName();
+        ApplicationResponse applicationResponse = applicationService.updateApplication(id, applicationRequest,email);
         return ResponseEntity.ok(applicationResponse);
     }
 
