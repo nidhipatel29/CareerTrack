@@ -57,16 +57,14 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationResponse createApplication(ApplicationRequest applicationRequest,String email) {
+    public ApplicationResponse createApplication(ApplicationRequest applicationRequest, String email) {
 
-        User user=userRepository.findByEmailIgnoreCase(email).orElseThrow(()->
-                                                       new UserNotFoundException("User is not found:"));
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new UserNotFoundException("User is not found:"));
 
-         Job job = jobRepository.findById(applicationRequest.getJobId())
-            .orElseThrow(() ->
-                    new JobNotFoundException(
-                            "Job is not found: " + applicationRequest.getJobId()));
-
+        Job job = jobRepository.findById(applicationRequest.getJobId())
+                .orElseThrow(() -> new JobNotFoundException(
+                        "Job is not found: " + applicationRequest.getJobId()));
 
         boolean alreadyExists = applicationRepository.existsByUserIdAndJobId(
                 user.getId(),
@@ -166,18 +164,26 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (userName.equalsIgnoreCase(email)) {
             applicationRepository.delete(application);
 
-        }
-        else{
-            throw new AccessDeniedException("Access is denied for this id: "+id);
+        } else {
+            throw new AccessDeniedException("Access is denied for this id: " + id);
         }
 
     }
 
     @Override
-    public List<ApplicationResponse> getApplicationByJobId(Long jobId) {
-        jobRepository.findById(jobId)
+    public List<ApplicationResponse> getApplicationByJobId(Long jobId, String email) {
+        Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new JobNotFoundException(
                         "Job not found with id: " + jobId));
+
+        String employerEmail = job.getCompany()
+                .getEmployer()
+                .getEmail();
+
+        if (!employerEmail.equalsIgnoreCase(email)) {
+            throw new AccessDeniedException(
+                    "You do not have access to applications for this job");
+        }
 
         return applicationRepository.findByJobId(jobId).stream().map(this::mapToResponse).toList();
     }
