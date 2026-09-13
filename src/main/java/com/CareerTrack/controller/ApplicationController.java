@@ -55,8 +55,9 @@ public class ApplicationController {
 
     @GetMapping("job/{jobId}")
 
-    public List<ApplicationResponse> getApplicationByJobId(@PathVariable Long jobId) {
-        return applicationService.getApplicationByJobId(jobId);
+    public List<ApplicationResponse> getApplicationByJobId(@PathVariable Long jobId,Authentication authentication) {
+        String email=authentication.getName();
+        return applicationService.getApplicationByJobId(jobId,email);
     }
 
     @PutMapping("/{id}")
