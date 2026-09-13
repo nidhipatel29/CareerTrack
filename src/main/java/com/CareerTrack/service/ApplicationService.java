@@ -8,7 +8,7 @@ import com.CareerTrack.dto.ApplicationResponse;
 public interface ApplicationService {
 
     // CREATE
-    ApplicationResponse createApplication(ApplicationRequest applicationRequest);
+    ApplicationResponse createApplication(ApplicationRequest applicationRequest,String email);
 
     // GET ALL
     List<ApplicationResponse> getMyApplications(String email);
