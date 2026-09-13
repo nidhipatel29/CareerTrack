@@ -52,11 +52,6 @@ public class ApplicationController {
      return  applicationService.getApplicationById(id, email);
     }
 
-    @GetMapping("user/{userId}")
-    public List<ApplicationResponse> getApplicationsOfUserId(@PathVariable Long userId) {
-
-        return applicationService.getApplicationsByUserId(userId);
-    }
 
     @GetMapping("job/{jobId}")
 
