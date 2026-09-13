@@ -57,16 +57,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationResponse createApplication(ApplicationRequest applicationRequest) {
+    public ApplicationResponse createApplication(ApplicationRequest applicationRequest,String email) {
 
-        User user = userRepository.findById(applicationRequest.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User is not found: " + applicationRequest.getUserId()));
+        User user=userRepository.findByEmailIgnoreCase(email).orElseThrow(()->
+                                                       new UserNotFoundException("User is not found:"));
 
-        Job job = jobRepository.findById(applicationRequest.getJobId())
-                .orElseThrow(() -> new JobNotFoundException("job is not found: " + applicationRequest.getJobId()));
+         Job job = jobRepository.findById(applicationRequest.getJobId())
+            .orElseThrow(() ->
+                    new JobNotFoundException(
+                            "Job is not found: " + applicationRequest.getJobId()));
+
 
         boolean alreadyExists = applicationRepository.existsByUserIdAndJobId(
-                applicationRequest.getUserId(),
+                user.getId(),
                 applicationRequest.getJobId());
 
         if (alreadyExists) {
