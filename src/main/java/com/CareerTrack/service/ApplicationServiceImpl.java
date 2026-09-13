@@ -113,35 +113,34 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (userEmail.equalsIgnoreCase(email)) {
             return mapToResponse(application);
 
-        }
-        else{
+        } else {
             throw new AccessDeniedException("you do not have access to this id:" + id);
         }
     }
 
     @Override
-    public ApplicationResponse updateApplication(Long id, ApplicationRequest applicationRequest) {
+    public ApplicationResponse updateApplication(Long id, ApplicationRequest applicationRequest, String email) {
         Application application = applicationRepository.findById(id)
                 .orElseThrow(() -> new ApplicationNotFoundException("application is not found: " + id));
 
-        // update application in DB
-        User user = userRepository.findById(applicationRequest.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("user is not found: " + applicationRequest.getUserId()));
+        String userName = application.getUser().getEmail();
+        if (userName.equalsIgnoreCase(email)) {
 
-        Job job = jobRepository.findById(applicationRequest.getJobId())
-                .orElseThrow(() -> new JobNotFoundException("job is not found: " + applicationRequest.getJobId()));
+            // update application in DB
 
-        application.setUser(user);
-        application.setJob(job);
-        if (applicationRequest.getAppliedDate() != null) {
-            application.setAppliedDate(applicationRequest.getAppliedDate());
+            if (applicationRequest.getAppliedDate() != null) {
+                application.setAppliedDate(applicationRequest.getAppliedDate());
+            }
+            application.setNotes(applicationRequest.getNotes());
+            application.setStatus(applicationRequest.getStatus());
+
+            // update in DB
+            Application updatedApplication = applicationRepository.save(application);
+            return mapToResponse(updatedApplication);
+
+        } else {
+            throw new AccessDeniedException("access is denied for this user:" + email);
         }
-        application.setNotes(applicationRequest.getNotes());
-        application.setStatus(applicationRequest.getStatus());
-
-        // update in DB
-        Application updatedApplication = applicationRepository.save(application);
-        return mapToResponse(updatedApplication);
 
     }
 
