@@ -19,7 +19,7 @@ public interface ApplicationService {
     // UPDATE
     ApplicationResponse updateApplication(
             Long id,
-            ApplicationRequest applicationRequest);
+            ApplicationRequest applicationRequest,String email);
 
     // DELETE
     void deleteApplication(Long id);
