@@ -28,6 +28,6 @@ public interface ApplicationService {
     List<ApplicationResponse> getApplicationsByUserId(Long userId);
 
     //Get applications by jobId
-    List<ApplicationResponse> getApplicationByJobId(Long jobId);
+    List<ApplicationResponse> getApplicationByJobId(Long jobId,String email);
 
 }
