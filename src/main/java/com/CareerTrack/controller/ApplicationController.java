@@ -32,8 +32,9 @@ public class ApplicationController {
 
     @PostMapping
     public ResponseEntity<ApplicationResponse> createApplication(
-            @Valid @RequestBody ApplicationRequest applicationRequest) {
-        ApplicationResponse applicationResponse = applicationService.createApplication(applicationRequest);
+            @Valid @RequestBody ApplicationRequest applicationRequest,Authentication authentication) {
+                String email=authentication.getName();
+        ApplicationResponse applicationResponse = applicationService.createApplication(applicationRequest,email);
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationResponse);
     }
 
