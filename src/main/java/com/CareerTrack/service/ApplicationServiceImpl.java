@@ -155,11 +155,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public void deleteApplication(Long id) {
+    public void deleteApplication(Long id, String email) {
         Application application = applicationRepository.findById(id)
                 .orElseThrow(() -> new ApplicationNotFoundException("application is not found: " + id));
 
-        applicationRepository.delete(application);
+        String userName = application.getUser().getEmail();
+        if (userName.equalsIgnoreCase(email)) {
+            applicationRepository.delete(application);
+
+        }
+        else{
+            throw new AccessDeniedException("Access is denied for this id: "+id);
+        }
+
     }
 
     @Override

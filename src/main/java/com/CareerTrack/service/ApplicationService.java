@@ -22,7 +22,7 @@ public interface ApplicationService {
             ApplicationRequest applicationRequest,String email);
 
     // DELETE
-    void deleteApplication(Long id);
+    void deleteApplication(Long id,String email);
 
     //Get Application By UserId
     List<ApplicationResponse> getApplicationsByUserId(Long userId);

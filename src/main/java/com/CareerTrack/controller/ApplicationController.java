@@ -73,8 +73,9 @@ public class ApplicationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteApplication(@PathVariable Long id) {
-        applicationService.deleteApplication(id);
+    public ResponseEntity<Void> deleteApplication(@PathVariable Long id,Authentication authentication) {
+        String email=authentication.getName();
+        applicationService.deleteApplication(id,email);
         return ResponseEntity.noContent().build();
     }
 }
