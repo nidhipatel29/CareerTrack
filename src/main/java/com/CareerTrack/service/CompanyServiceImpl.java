@@ -8,16 +8,21 @@ import org.springframework.stereotype.Service;
 import com.CareerTrack.dto.CompanyRequest;
 import com.CareerTrack.dto.CompanyResponse;
 import com.CareerTrack.entity.Company;
+import com.CareerTrack.entity.User;
 import com.CareerTrack.exception.CompanyNotFoundException;
+import com.CareerTrack.exception.UserNotFoundException;
 import com.CareerTrack.repository.CompanyRepository;
+import com.CareerTrack.repository.UserRepository;
 
 @Service
 public class CompanyServiceImpl implements CompanyService {
 
     private CompanyRepository companyRepository;
+    private UserRepository userRepository;
 
-    public CompanyServiceImpl(CompanyRepository theCompanyRepository) {
+    public CompanyServiceImpl(CompanyRepository theCompanyRepository,UserRepository userRepository) {
         this.companyRepository = theCompanyRepository;
+        this.userRepository=userRepository;
     }
 
     private CompanyResponse mapToResponse(Company company) {
@@ -34,13 +39,15 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public CompanyResponse createCompany(CompanyRequest request) {
+    public CompanyResponse createCompany(CompanyRequest request,String email) {
 
         // now we need to save the entity not a request object
         // convert companyRequest to company entity
         Company company = new Company(
                 request.getName(), request.getDescription(), request.getWebsite(), request.getLocation());
 
+        User user=userRepository.findByEmailIgnoreCase(email).orElseThrow(()->new UserNotFoundException("user is  not found: "));
+        company.setEmployer(user);
         Company savedCompany = companyRepository.save(company);
 
         // return response
