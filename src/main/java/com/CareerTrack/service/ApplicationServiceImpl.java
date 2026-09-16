@@ -11,6 +11,7 @@ import com.CareerTrack.entity.Company;
 import com.CareerTrack.dto.ApplicationRequest;
 import com.CareerTrack.dto.ApplicationResponse;
 import com.CareerTrack.entity.Job;
+import com.CareerTrack.entity.Role;
 import com.CareerTrack.entity.User;
 import com.CareerTrack.exception.ApplicationNotFoundException;
 import com.CareerTrack.exception.DuplicateApplicationException;
@@ -33,6 +34,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         this.jobRepository = theJobRepository;
         this.userRepository = theUserRepository;
 
+    }
+
+    private boolean isAdmin(String email) {
+        return userRepository.findByEmailIgnoreCase(email)
+                .map(User::getRole)
+                .filter(role -> role == Role.ADMIN)
+                .isPresent();
     }
 
     private ApplicationResponse mapToResponse(Application application) {
@@ -111,7 +119,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         String userEmail = application.getUser().getEmail();
 
-        if (userEmail.equalsIgnoreCase(email)) {
+        if (isAdmin(email) || userEmail.equalsIgnoreCase(email)) {
             return mapToResponse(application);
 
         } else {
@@ -125,7 +133,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .orElseThrow(() -> new ApplicationNotFoundException("application is not found: " + id));
 
         String userName = application.getUser().getEmail();
-        if (userName.equalsIgnoreCase(email)) {
+        if (isAdmin(email) || userName.equalsIgnoreCase(email)) {
 
             // update application in DB
 
@@ -161,7 +169,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .orElseThrow(() -> new ApplicationNotFoundException("application is not found: " + id));
 
         String userName = application.getUser().getEmail();
-        if (userName.equalsIgnoreCase(email)) {
+        if (isAdmin(email) || userName.equalsIgnoreCase(email)) {
             applicationRepository.delete(application);
 
         } else {
@@ -180,7 +188,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .getEmployer()
                 .getEmail();
 
-        if (!employerEmail.equalsIgnoreCase(email)) {
+        if (!isAdmin(email) && !employerEmail.equalsIgnoreCase(email)) {
             throw new AccessDeniedException(
                     "You do not have access to applications for this job");
         }
