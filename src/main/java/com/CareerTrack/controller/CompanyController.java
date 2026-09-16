@@ -52,8 +52,10 @@ public class CompanyController {
 
   @PutMapping("/{id}")
   public ResponseEntity<CompanyResponse> updateCompany(@PathVariable Long id,
-      @Valid @RequestBody CompanyRequest request) {
-    CompanyResponse updatedCompany = companyService.updateCompany(id, request);
+      @Valid @RequestBody CompanyRequest request,
+      Authentication authentication) {
+    String email = authentication.getName();
+    CompanyResponse updatedCompany = companyService.updateCompany(id, request, email);
     return ResponseEntity.ok(updatedCompany);
   }
 

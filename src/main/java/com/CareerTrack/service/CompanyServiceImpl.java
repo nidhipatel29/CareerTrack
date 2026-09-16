@@ -3,11 +3,13 @@ package com.CareerTrack.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.CareerTrack.dto.CompanyRequest;
 import com.CareerTrack.dto.CompanyResponse;
 import com.CareerTrack.entity.Company;
+import com.CareerTrack.entity.Role;
 import com.CareerTrack.entity.User;
 import com.CareerTrack.exception.CompanyNotFoundException;
 import com.CareerTrack.exception.UserNotFoundException;
@@ -23,6 +25,19 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyServiceImpl(CompanyRepository theCompanyRepository,UserRepository userRepository) {
         this.companyRepository = theCompanyRepository;
         this.userRepository=userRepository;
+    }
+
+    private void validateEmployerOwnsCompany(String email, Company company) {
+        User currentUser = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+
+        if (currentUser.getRole() != Role.EMPLOYER) {
+            throw new AccessDeniedException("Only employers can update companies");
+        }
+
+        if (company.getEmployer() == null || !company.getEmployer().getEmail().equalsIgnoreCase(email)) {
+            throw new AccessDeniedException("Employer can update only their own company");
+        }
     }
 
     private CompanyResponse mapToResponse(Company company) {
@@ -78,9 +93,11 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public CompanyResponse updateCompany(Long id, CompanyRequest request) {
+    public CompanyResponse updateCompany(Long id, CompanyRequest request, String email) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
+
+        validateEmployerOwnsCompany(email, company);
 
         company.setName(request.getName());
         company.setDescription(request.getDescription());

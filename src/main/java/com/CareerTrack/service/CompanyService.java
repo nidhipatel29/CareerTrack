@@ -13,7 +13,7 @@ public interface CompanyService {
 
     CompanyResponse getCompanyById(Long id);
 
-    CompanyResponse updateCompany(Long id, CompanyRequest request);
+    CompanyResponse updateCompany(Long id, CompanyRequest request, String email);
 
     void deleteCompany(Long id);
 }
