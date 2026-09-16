@@ -11,7 +11,6 @@ public class CompanyResponse {
     private String website;
     private String location;
     private LocalDateTime createdAt;
-    private Long employer_id;
 
     public CompanyResponse(){
 
@@ -35,12 +34,6 @@ public class CompanyResponse {
       this.id=id;
     }
    
-    public Long getEmployer_id() {
-        return employer_id;
-    }
-    public void setEmployer_id(Long employer_id) {
-        this.employer_id = employer_id;
-    }
     public String getName() {
         return name;
     }
