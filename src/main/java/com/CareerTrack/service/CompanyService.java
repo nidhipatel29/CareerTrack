@@ -15,5 +15,5 @@ public interface CompanyService {
 
     CompanyResponse updateCompany(Long id, CompanyRequest request, String email);
 
-    void deleteCompany(Long id);
+    void deleteCompany(Long id, String email);
 }

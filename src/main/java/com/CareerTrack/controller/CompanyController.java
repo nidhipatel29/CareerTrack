@@ -60,8 +60,9 @@ public class CompanyController {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
-    companyService.deleteCompany(id);
+  public ResponseEntity<Void> deleteCompany(@PathVariable Long id, Authentication authentication) {
+    String email = authentication.getName();
+    companyService.deleteCompany(id, email);
     return ResponseEntity.noContent().build();
   }
 
