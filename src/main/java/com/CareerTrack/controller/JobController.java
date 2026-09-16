@@ -112,8 +112,9 @@ public class JobController {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteJob(@PathVariable Long id) {
-    jobService.deleteJob(id);
+  public ResponseEntity<Void> deleteJob(@PathVariable Long id, Authentication authentication) {
+    String email = authentication.getName();
+    jobService.deleteJob(id, email);
     return ResponseEntity.noContent().build();
   }
 

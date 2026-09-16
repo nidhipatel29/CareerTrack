@@ -19,8 +19,10 @@ import com.CareerTrack.entity.Role;
 import com.CareerTrack.entity.User;
 import com.CareerTrack.exception.CompanyNotFoundException;
 import com.CareerTrack.exception.InvalidRequestException;
+import com.CareerTrack.exception.JobHasApplicationsException;
 import com.CareerTrack.exception.JobNotFoundException;
 import com.CareerTrack.exception.UserNotFoundException;
+import com.CareerTrack.repository.ApplicationRepository;
 import com.CareerTrack.repository.CompanyRepository;
 import com.CareerTrack.repository.JobRepository;
 import com.CareerTrack.repository.UserRepository;
@@ -31,11 +33,14 @@ public class JobServiceImpl implements JobService {
     private JobRepository jobRepository;
     private CompanyRepository companyRepository;
     private UserRepository userRepository;
+    private ApplicationRepository applicationRepository;
 
-    public JobServiceImpl(JobRepository jobRepository, CompanyRepository companyRepository, UserRepository userRepository) {
+    public JobServiceImpl(JobRepository jobRepository, CompanyRepository companyRepository,
+            UserRepository userRepository, ApplicationRepository applicationRepository) {
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
         this.userRepository = userRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     private void validateEmployerCanCreateJob(String email, Company company) {
@@ -51,17 +56,17 @@ public class JobServiceImpl implements JobService {
         }
     }
 
-    private void validateEmployerOwnsJob(String email, Job job) {
+    private void validateEmployerOwnsJob(String email, Job job, String action) {
         User currentUser = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
 
         if (currentUser.getRole() != Role.EMPLOYER) {
-            throw new AccessDeniedException("Only employers can update jobs");
+            throw new AccessDeniedException("Only employers can " + action + " jobs");
         }
 
         if (job.getCompany() == null || job.getCompany().getEmployer() == null
                 || !job.getCompany().getEmployer().getEmail().equalsIgnoreCase(email)) {
-            throw new AccessDeniedException("Employer can update only their own job");
+            throw new AccessDeniedException("Employer can " + action + " only their own job");
         }
     }
 
@@ -133,7 +138,7 @@ public class JobServiceImpl implements JobService {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new JobNotFoundException("Job not found with id: " + jobId));
 
-        validateEmployerOwnsJob(email, job);
+        validateEmployerOwnsJob(email, job, "update");
 
         // Step 2: does the Company (from the request) exist?
         Company company = companyRepository.findById(request.getCompanyId())
@@ -161,10 +166,17 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public void deleteJob(Long id) {
+    public void deleteJob(Long id, String email) {
 
         Job job = jobRepository.findById(id)
                 .orElseThrow(() -> new JobNotFoundException("Job not found with id: " + id));
+
+        validateEmployerOwnsJob(email, job, "delete");
+
+        if (applicationRepository.existsByJobId(id)) {
+            throw new JobHasApplicationsException(
+                    "Cannot delete job because applications already exist for it");
+        }
 
         jobRepository.delete(job);
 
@@ -301,7 +313,7 @@ public class JobServiceImpl implements JobService {
                             location.toLowerCase()));
         }
 
-        //1.b>>>>>>>>>>> EMPLOYMENT TYPE FILTER
+        // 1.b>>>>>>>>>>> EMPLOYMENT TYPE FILTER
         if (employmentType != null) {
             specification = specification.and(
                     (root, query, criteriaBuilder) -> criteriaBuilder.equal(
@@ -309,7 +321,7 @@ public class JobServiceImpl implements JobService {
                             employmentType));
         }
 
-        //1.c>>>>>>>COMPANY FILTER
+        // 1.c>>>>>>>COMPANY FILTER
         if (companyId != null) {
 
             // Verify that the company actually exists
@@ -323,7 +335,7 @@ public class JobServiceImpl implements JobService {
                             companyId));
         }
 
-        //1.d >>>>>>>>TITLE FILTER
+        // 1.d >>>>>>>>TITLE FILTER
         if (title != null && !title.isBlank()) {
             specification = specification.and(
                     (root, query, criteriaBuilder) -> criteriaBuilder.like(
@@ -331,22 +343,20 @@ public class JobServiceImpl implements JobService {
                             "%" + title.toLowerCase() + "%"));
         }
 
-
         // 2. Validate page/size
-         if (page < 0 || size < 1 || size > 100) {
+        if (page < 0 || size < 1 || size > 100) {
             throw new InvalidRequestException("wrong page or size value");
         }
 
         // 3. Validate sortBy
-         Set<String> allowedSortFields = Set.of("title", "salary", "createdAt", "location");
+        Set<String> allowedSortFields = Set.of("title", "salary", "createdAt", "location");
         if (!allowedSortFields.contains(sortBy)) {
             throw new InvalidRequestException(
                     "Invalid sort field: " + sortBy + ". Allowed fields are: title, salary, createdAt, location");
         }
 
-
         // 4. Validate direction
-         Sort.Direction sortDirection;
+        Sort.Direction sortDirection;
         if (direction.equalsIgnoreCase("desc")) {
             sortDirection = Sort.Direction.DESC;
 
@@ -361,16 +371,14 @@ public class JobServiceImpl implements JobService {
         // 5. Create Sort
         Sort sort = Sort.by(sortDirection, sortBy);
 
-
         // 6. Create PageRequest
         PageRequest pageable = PageRequest.of(page, size, sort);
-
 
         // 7. findAll(specification, pageable)
 
         // 8. map Page<Job> -> Page<JobResponse>
 
-        return jobRepository.findAll(specification,pageable).map(this::mapToJobResponse);
+        return jobRepository.findAll(specification, pageable).map(this::mapToJobResponse);
 
     }
 }

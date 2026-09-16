@@ -17,7 +17,7 @@ public interface JobService {
 
      JobResponse updateJob(Long id, JobRequest request, String email);
 
-     void deleteJob(Long id);
+     void deleteJob(Long id, String email);
 
      List<JobResponse> searchJobsByTitle(String title);
 
