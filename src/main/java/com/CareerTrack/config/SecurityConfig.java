@@ -40,11 +40,29 @@ public class SecurityConfig {
                         .permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/jobs/**").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.PUT, "/api/jobs/**").hasAnyRole("EMPLOYER", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/jobs/**").hasAnyRole("EMPLOYER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/jobs/**").hasRole("EMPLOYER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/jobs/**").hasRole("EMPLOYER")
 
                         .requestMatchers("/api/applications/**").hasAnyRole("EMPLOYER", "ADMIN")
                         .anyRequest().authenticated())
+
+
+                        .exceptionHandling(exception -> exception
+        .accessDeniedHandler((request, response, accessDeniedException) -> {
+
+            response.setStatus(403);
+            response.setContentType("application/json");
+
+            response.getWriter().write("""
+                    {
+                      "status": 403,
+                      "error": "Forbidden",
+                      "message": "You do not have permission to access this resource"
+                    }
+                    """);
+        })
+)
+
 
                 .addFilterBefore(
                         jwtAuthenticationFilter,

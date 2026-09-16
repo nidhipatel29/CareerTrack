@@ -15,7 +15,7 @@ public interface JobService {
 
      JobResponse getJobById(Long id);
 
-     JobResponse updateJob(Long id, JobRequest request);
+     JobResponse updateJob(Long id, JobRequest request, String email);
 
      void deleteJob(Long id);
 

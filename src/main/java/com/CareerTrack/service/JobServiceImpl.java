@@ -51,6 +51,20 @@ public class JobServiceImpl implements JobService {
         }
     }
 
+    private void validateEmployerOwnsJob(String email, Job job) {
+        User currentUser = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+
+        if (currentUser.getRole() != Role.EMPLOYER) {
+            throw new AccessDeniedException("Only employers can update jobs");
+        }
+
+        if (job.getCompany() == null || job.getCompany().getEmployer() == null
+                || !job.getCompany().getEmployer().getEmail().equalsIgnoreCase(email)) {
+            throw new AccessDeniedException("Employer can update only their own job");
+        }
+    }
+
     private JobResponse mapToJobResponse(Job job) {
 
         return new JobResponse(
@@ -113,18 +127,25 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public JobResponse updateJob(Long jobId, JobRequest request) {
+    public JobResponse updateJob(Long jobId, JobRequest request, String email) {
 
         // Step 1: does the Job exist?
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new JobNotFoundException("Job not found with id: " + jobId));
+
+        validateEmployerOwnsJob(email, job);
 
         // Step 2: does the Company (from the request) exist?
         Company company = companyRepository.findById(request.getCompanyId())
                 .orElseThrow(() -> new CompanyNotFoundException(
                         "Company not found with id: " + request.getCompanyId()));
 
-        // Step 3: both exist → update Job fields
+        // Step 3: ensure employer is updating their own company too
+        if (company.getEmployer() == null || !company.getEmployer().getEmail().equalsIgnoreCase(email)) {
+            throw new AccessDeniedException("Employer can update only their own job");
+        }
+
+        // Step 4: both exist → update Job fields
         job.setTitle(request.getTitle());
         job.setDescription(request.getDescription());
         job.setLocation(request.getLocation());
@@ -132,10 +153,10 @@ public class JobServiceImpl implements JobService {
         job.setSalary(request.getSalary());
         job.setCompany(company);
 
-        // Step 4: save
+        // Step 5: save
         Job updatedJob = jobRepository.save(job);
 
-        // Step 5: map to response
+        // Step 6: map to response
         return mapToJobResponse(updatedJob);
     }
 

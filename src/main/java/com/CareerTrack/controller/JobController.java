@@ -103,8 +103,11 @@ public class JobController {
   }
 
   @PutMapping("{id}")
-  public ResponseEntity<JobResponse> updateJob(@PathVariable Long id, @Valid @RequestBody JobRequest jobRequest) {
-    JobResponse jobResponse = jobService.updateJob(id, jobRequest);
+  public ResponseEntity<JobResponse> updateJob(@PathVariable Long id,
+      @Valid @RequestBody JobRequest jobRequest,
+      Authentication authentication) {
+    String email = authentication.getName();
+    JobResponse jobResponse = jobService.updateJob(id, jobRequest, email);
     return ResponseEntity.ok(jobResponse);
   }
 
