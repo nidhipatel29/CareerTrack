@@ -8,27 +8,47 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import com.CareerTrack.dto.JobRequest;
 import com.CareerTrack.dto.JobResponse;
 import com.CareerTrack.entity.Company;
 import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.entity.Job;
+import com.CareerTrack.entity.Role;
+import com.CareerTrack.entity.User;
 import com.CareerTrack.exception.CompanyNotFoundException;
 import com.CareerTrack.exception.InvalidRequestException;
 import com.CareerTrack.exception.JobNotFoundException;
+import com.CareerTrack.exception.UserNotFoundException;
 import com.CareerTrack.repository.CompanyRepository;
 import com.CareerTrack.repository.JobRepository;
+import com.CareerTrack.repository.UserRepository;
 
 @Service
 public class JobServiceImpl implements JobService {
 
     private JobRepository jobRepository;
     private CompanyRepository companyRepository;
+    private UserRepository userRepository;
 
-    public JobServiceImpl(JobRepository jobRepository, CompanyRepository companyRepository) {
+    public JobServiceImpl(JobRepository jobRepository, CompanyRepository companyRepository, UserRepository userRepository) {
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
+        this.userRepository = userRepository;
+    }
+
+    private void validateEmployerCanCreateJob(String email, Company company) {
+        User currentUser = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+
+        if (currentUser.getRole() != Role.EMPLOYER) {
+            throw new AccessDeniedException("Only employers can create jobs");
+        }
+
+        if (company.getEmployer() == null || !company.getEmployer().getEmail().equalsIgnoreCase(email)) {
+            throw new AccessDeniedException("Employer can create a job only for their own company");
+        }
     }
 
     private JobResponse mapToJobResponse(Job job) {
@@ -46,12 +66,14 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public JobResponse createJob(JobRequest request) {
+    public JobResponse createJob(JobRequest request, String email) {
 
         // resolve companyId → actual Company entity
         Company company = companyRepository.findById(request.getCompanyId())
                 .orElseThrow(() -> new CompanyNotFoundException(
                         "Company not found with id: " + request.getCompanyId()));
+
+        validateEmployerCanCreateJob(email, company);
 
         // converting job request to job entity
         Job job = new Job();

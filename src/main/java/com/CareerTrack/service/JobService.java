@@ -9,7 +9,7 @@ import com.CareerTrack.entity.EmploymentType;
 
 public interface JobService {
 
-     JobResponse createJob(JobRequest request);
+     JobResponse createJob(JobRequest request, String email);
 
      List<JobResponse> getJobs();
 

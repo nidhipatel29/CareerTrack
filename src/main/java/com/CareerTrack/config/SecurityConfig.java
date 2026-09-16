@@ -33,13 +33,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        
+
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login")
                         .permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/jobs/**").hasAnyRole("EMPLOYER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/jobs/**").hasRole("EMPLOYER")
                         .requestMatchers(HttpMethod.PUT, "/api/jobs/**").hasAnyRole("EMPLOYER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/jobs/**").hasAnyRole("EMPLOYER", "ADMIN")
 

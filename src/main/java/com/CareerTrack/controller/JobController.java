@@ -13,6 +13,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,8 +32,9 @@ public class JobController {
   }
 
   @PostMapping
-  public ResponseEntity<JobResponse> createJob(@Valid @RequestBody JobRequest jobRequest) {
-    JobResponse theJobResponse = jobService.createJob(jobRequest);
+  public ResponseEntity<JobResponse> createJob(@Valid @RequestBody JobRequest jobRequest, Authentication authentication) {
+    String email = authentication.getName();
+    JobResponse theJobResponse = jobService.createJob(jobRequest, email);
 
     // converting jobResonce to ResponseEntity
     return ResponseEntity.status(HttpStatus.CREATED).body(theJobResponse);
