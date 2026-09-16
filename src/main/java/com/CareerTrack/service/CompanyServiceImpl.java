@@ -9,11 +9,14 @@ import org.springframework.stereotype.Service;
 import com.CareerTrack.dto.CompanyRequest;
 import com.CareerTrack.dto.CompanyResponse;
 import com.CareerTrack.entity.Company;
+import com.CareerTrack.entity.Job;
 import com.CareerTrack.entity.Role;
 import com.CareerTrack.entity.User;
+import com.CareerTrack.exception.CompanyHasJobsException;
 import com.CareerTrack.exception.CompanyNotFoundException;
 import com.CareerTrack.exception.UserNotFoundException;
 import com.CareerTrack.repository.CompanyRepository;
+import com.CareerTrack.repository.JobRepository;
 import com.CareerTrack.repository.UserRepository;
 
 @Service
@@ -21,22 +24,24 @@ public class CompanyServiceImpl implements CompanyService {
 
     private CompanyRepository companyRepository;
     private UserRepository userRepository;
+    private JobRepository jobRepository;
 
-    public CompanyServiceImpl(CompanyRepository theCompanyRepository,UserRepository userRepository) {
+    public CompanyServiceImpl(CompanyRepository theCompanyRepository,UserRepository userRepository, JobRepository jobRepository) {
         this.companyRepository = theCompanyRepository;
         this.userRepository=userRepository;
+        this.jobRepository = jobRepository;
     }
 
-    private void validateEmployerOwnsCompany(String email, Company company) {
+    private void validateEmployerOwnsCompany(String email, Company company,String action) {
         User currentUser = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
 
         if (currentUser.getRole() != Role.EMPLOYER) {
-            throw new AccessDeniedException("Only employers can update companies");
+            throw new AccessDeniedException("Only employers can" + action +"companies");
         }
 
         if (company.getEmployer() == null || !company.getEmployer().getEmail().equalsIgnoreCase(email)) {
-            throw new AccessDeniedException("Employer can update only their own company");
+            throw new AccessDeniedException("Employer can  only  " +  action + " their own company");
         }
     }
 
@@ -97,7 +102,7 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
 
-        validateEmployerOwnsCompany(email, company);
+        validateEmployerOwnsCompany(email, company,"update");
 
         company.setName(request.getName());
         company.setDescription(request.getDescription());
@@ -109,9 +114,16 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void deleteCompany(Long id) {
+    public void deleteCompany(Long id, String email) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
+
+        validateEmployerOwnsCompany(email, company,"delete");
+
+        boolean hasJob = jobRepository.existsByCompanyId(id);
+        if (hasJob) {
+            throw new CompanyHasJobsException("Cannot delete company because it still has jobs associated with it");
+        }
 
         companyRepository.delete(company);
     }

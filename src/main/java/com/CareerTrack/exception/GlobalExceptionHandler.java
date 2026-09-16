@@ -87,23 +87,29 @@ public class GlobalExceptionHandler {
             .body("Invalid email or password");
    }
 
+   @ExceptionHandler(AccessDeniedException.class)
+   public ResponseEntity<String> handleAccessDeniedException(
+         AccessDeniedException exception) {
 
-
- @ExceptionHandler(AccessDeniedException.class)
-public ResponseEntity<String> handleAccessDeniedException(
-        AccessDeniedException exception) {
-
-    return ResponseEntity
+      return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body(exception.getMessage());
-}
+   }
 
-@ExceptionHandler(JobHasApplicationsException.class)
-public ResponseEntity<String> handleJobHasApplicationsException(
-        JobHasApplicationsException ex) {
+   @ExceptionHandler(JobHasApplicationsException.class)
+   public ResponseEntity<String> handleJobHasApplicationsException(
+         JobHasApplicationsException ex) {
 
-    return ResponseEntity
+      return ResponseEntity
             .status(HttpStatus.CONFLICT)
             .body(ex.getMessage());
-}
+   }
+
+   @ExceptionHandler(CompanyHasJobsException.class)
+   public ResponseEntity<String> handleCompanyHasJobsException(CompanyHasJobsException ex) {
+      return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(ex.getMessage());
+   }
+
 }
