@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.CareerTrack.dto.ApplicationRequest;
 import com.CareerTrack.dto.ApplicationResponse;
+import com.CareerTrack.dto.ApplicationStatusUpdateRequest;
 
 public interface ApplicationService {
 
@@ -29,5 +30,10 @@ public interface ApplicationService {
 
     //Get applications by jobId
     List<ApplicationResponse> getApplicationByJobId(Long jobId,String email);
+
+    ApplicationResponse updateApplicationStatus(
+        Long applicationId,
+        ApplicationStatusUpdateRequest request,
+        String email);
 
 }

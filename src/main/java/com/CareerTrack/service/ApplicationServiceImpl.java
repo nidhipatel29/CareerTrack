@@ -10,6 +10,7 @@ import com.CareerTrack.entity.Application;
 import com.CareerTrack.entity.Company;
 import com.CareerTrack.dto.ApplicationRequest;
 import com.CareerTrack.dto.ApplicationResponse;
+import com.CareerTrack.dto.ApplicationStatusUpdateRequest;
 import com.CareerTrack.entity.Job;
 import com.CareerTrack.entity.Role;
 import com.CareerTrack.entity.User;
@@ -194,6 +195,37 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         return applicationRepository.findByJobId(jobId).stream().map(this::mapToResponse).toList();
+    }
+
+    @Override
+    public ApplicationResponse updateApplicationStatus(Long applicationId, ApplicationStatusUpdateRequest request,
+            String email) {
+
+        // 1. Find the application
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ApplicationNotFoundException(
+                        "Application not found with id: " + applicationId));
+
+        // 2. Get the employer who owns the job
+        String employerEmail = application.getJob()
+                .getCompany()
+                .getEmployer()
+                .getEmail();
+
+        // 3. Check ownership
+        if (!employerEmail.equalsIgnoreCase(email)) {
+            throw new AccessDeniedException(
+                    "You can update application status only for your own jobs");
+        }
+
+        // 4. Update only the status
+        application.setStatus(request.getStatus());
+
+        // 5. Save
+        Application updatedApplication = applicationRepository.save(application);
+
+        // 6. Return response DTO
+        return mapToResponse(updatedApplication);
     }
 
 }
