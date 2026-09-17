@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.AccessDeniedException;
-import com.CareerTrack.dto.ApplicationRequest;
+
+import com.CareerTrack.dto.ApplicationCreateRequest;
 import com.CareerTrack.dto.ApplicationResponse;
 import com.CareerTrack.dto.ApplicationStatusUpdateRequest;
+import com.CareerTrack.dto.ApplicationUpdateRequest;
 import com.CareerTrack.service.ApplicationService;
 
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/applications")
@@ -34,9 +34,9 @@ public class ApplicationController {
 
     @PostMapping
     public ResponseEntity<ApplicationResponse> createApplication(
-            @Valid @RequestBody ApplicationRequest applicationRequest, Authentication authentication) {
+            @Valid @RequestBody ApplicationCreateRequest applicationCreateRequest, Authentication authentication) {
         String email = authentication.getName();
-        ApplicationResponse applicationResponse = applicationService.createApplication(applicationRequest, email);
+        ApplicationResponse applicationResponse = applicationService.createApplication(applicationCreateRequest, email);
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationResponse);
     }
 
@@ -54,7 +54,7 @@ public class ApplicationController {
         return applicationService.getApplicationById(id, email);
     }
 
-    @GetMapping("job/{jobId}")
+    @GetMapping("/job/{jobId}")
 
     public List<ApplicationResponse> getApplicationByJobId(@PathVariable Long jobId, Authentication authentication) {
         String email = authentication.getName();
@@ -64,9 +64,9 @@ public class ApplicationController {
     @PutMapping("/{id}")
     public ResponseEntity<ApplicationResponse> updateApplication(
             @PathVariable Long id,
-            @Valid @RequestBody ApplicationRequest applicationRequest, Authentication authentication) {
+            @Valid @RequestBody ApplicationUpdateRequest applicationUpdateRequest, Authentication authentication) {
         String email = authentication.getName();
-        ApplicationResponse applicationResponse = applicationService.updateApplication(id, applicationRequest, email);
+        ApplicationResponse applicationResponse = applicationService.updateApplication(id, applicationUpdateRequest, email);
         return ResponseEntity.ok(applicationResponse);
     }
 

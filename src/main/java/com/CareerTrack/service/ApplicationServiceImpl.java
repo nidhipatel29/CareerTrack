@@ -1,14 +1,13 @@
 package com.CareerTrack.service;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.security.access.AccessDeniedException;
 import com.CareerTrack.entity.Application;
+import com.CareerTrack.entity.ApplicationStatus;
 import com.CareerTrack.entity.Company;
-import com.CareerTrack.dto.ApplicationRequest;
+import com.CareerTrack.dto.ApplicationCreateRequest;
+import com.CareerTrack.dto.ApplicationUpdateRequest;
 import com.CareerTrack.dto.ApplicationResponse;
 import com.CareerTrack.dto.ApplicationStatusUpdateRequest;
 import com.CareerTrack.entity.Job;
@@ -66,18 +65,18 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationResponse createApplication(ApplicationRequest applicationRequest, String email) {
+    public ApplicationResponse createApplication(ApplicationCreateRequest applicationCreateRequest, String email) {
 
         User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UserNotFoundException("User is not found:"));
 
-        Job job = jobRepository.findById(applicationRequest.getJobId())
+        Job job = jobRepository.findById(applicationCreateRequest.getJobId())
                 .orElseThrow(() -> new JobNotFoundException(
-                        "Job is not found: " + applicationRequest.getJobId()));
+                        "Job is not found: " + applicationCreateRequest.getJobId()));
 
         boolean alreadyExists = applicationRepository.existsByUserIdAndJobId(
                 user.getId(),
-                applicationRequest.getJobId());
+                applicationCreateRequest.getJobId());
 
         if (alreadyExists) {
             // throw duplicate application exception
@@ -87,13 +86,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application = new Application();
         application.setUser(user);
         application.setJob(job);
-        if (applicationRequest.getAppliedDate() != null) {
-            application.setAppliedDate(applicationRequest.getAppliedDate());
+        if (applicationCreateRequest.getAppliedDate() != null) {
+            application.setAppliedDate(applicationCreateRequest.getAppliedDate());
         } else {
             application.setAppliedDate(LocalDate.now());
         }
-        application.setNotes(applicationRequest.getNotes());
-        application.setStatus(applicationRequest.getStatus());
+        application.setNotes(applicationCreateRequest.getNotes());
+        application.setStatus(ApplicationStatus.APPLIED);
 
         // save to DB
         Application savedApplication = applicationRepository.save(application);
@@ -129,7 +128,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationResponse updateApplication(Long id, ApplicationRequest applicationRequest, String email) {
+    public ApplicationResponse updateApplication(Long id, ApplicationUpdateRequest applicationUpdateRequest, String email) {
         Application application = applicationRepository.findById(id)
                 .orElseThrow(() -> new ApplicationNotFoundException("application is not found: " + id));
 
@@ -138,11 +137,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
             // update application in DB
 
-            if (applicationRequest.getAppliedDate() != null) {
-                application.setAppliedDate(applicationRequest.getAppliedDate());
+            if (applicationUpdateRequest.getAppliedDate() != null) {
+                application.setAppliedDate(applicationUpdateRequest.getAppliedDate());
             }
-            application.setNotes(applicationRequest.getNotes());
-            application.setStatus(applicationRequest.getStatus());
+            application.setNotes(applicationUpdateRequest.getNotes());
 
             // update in DB
             Application updatedApplication = applicationRepository.save(application);

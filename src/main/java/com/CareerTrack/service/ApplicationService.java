@@ -1,15 +1,16 @@
 package com.CareerTrack.service;
 
 import java.util.List;
+import com.CareerTrack.dto.ApplicationCreateRequest;
+import com.CareerTrack.dto.ApplicationUpdateRequest;
 
-import com.CareerTrack.dto.ApplicationRequest;
 import com.CareerTrack.dto.ApplicationResponse;
 import com.CareerTrack.dto.ApplicationStatusUpdateRequest;
 
 public interface ApplicationService {
 
     // CREATE
-    ApplicationResponse createApplication(ApplicationRequest applicationRequest,String email);
+    ApplicationResponse createApplication(ApplicationCreateRequest applicationCreateRequest,String email);
 
     // GET ALL
     List<ApplicationResponse> getMyApplications(String email);
@@ -20,7 +21,7 @@ public interface ApplicationService {
     // UPDATE
     ApplicationResponse updateApplication(
             Long id,
-            ApplicationRequest applicationRequest,String email);
+            ApplicationUpdateRequest applicationUpdateRequest,String email);
 
     // DELETE
     void deleteApplication(Long id,String email);
