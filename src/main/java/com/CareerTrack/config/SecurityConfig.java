@@ -47,26 +47,40 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/companies/**").hasRole("EMPLOYER")
                         .requestMatchers(HttpMethod.GET, "/api/applications/job/**").hasAnyRole("EMPLOYER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/applications/**").hasAnyRole("JOB_SEEKER", "ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/applications/*/status") .hasAnyRole("EMPLOYER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/applications/*/status").hasAnyRole("EMPLOYER")
                         .requestMatchers(HttpMethod.POST, "/api/applications/**").hasAnyRole("JOB_SEEKER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/applications/**").hasAnyRole("JOB_SEEKER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/applications/**").hasAnyRole("JOB_SEEKER", "ADMIN")
                         .anyRequest().authenticated())
 
                 .exceptionHandling(exception -> exception
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
 
-                            response.setStatus(403);
+                        .authenticationEntryPoint((request, response, authException) -> {
+
+                            response.setStatus(401);
                             response.setContentType("application/json");
 
                             response.getWriter().write("""
                                     {
-                                      "status": 403,
-                                      "error": "Forbidden",
-                                      "message": "You do not have permission to access this resource"
+                                    "status": 401,
+                                    "error": "Unauthorized",
+                                    "message": "Authentication is required to access this resource"
                                     }
                                     """);
-                        }))
+                        })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+
+                    response.setStatus(403);
+                    response.setContentType("application/json");
+
+                    response.getWriter().write("""
+                            {
+                              "status": 403,
+                              "error": "Forbidden",
+                              "message": "You do not have permission to access this resource"
+                            }
+                            """);
+                }))
 
                 .addFilterBefore(
                         jwtAuthenticationFilter,
