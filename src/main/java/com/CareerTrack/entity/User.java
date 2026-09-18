@@ -1,5 +1,9 @@
 package com.CareerTrack.entity;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -38,9 +43,11 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "user")
+    private List<Application> applications = new ArrayList<>();
+
     public User() {
     }
-
 
     public User(String firstName, String lastName, String email, String password, Role role) {
         this.firstName = firstName;
@@ -49,8 +56,6 @@ public class User {
         this.password = password;
         this.role = role;
     }
-
-
 
     @PrePersist
     protected void onCreate() {
@@ -107,5 +112,22 @@ public class User {
         return createdAt;
     }
 
-    
+    public List<Application> getApplications() {
+        return applications;
+    }
+
+        public void addApplication(Application application) {
+            if (application != null && !applications.contains(application)) {
+                applications.add(application);
+                application.setUser(this);
+            }
+        }
+
+        public void removeApplication(Application application) {
+            if (application != null && applications.remove(application)
+                    && application.getUser() == this) {
+                application.setUser(null);
+            }
+        }
+
 }

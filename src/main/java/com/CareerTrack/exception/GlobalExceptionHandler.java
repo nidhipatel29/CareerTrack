@@ -105,11 +105,5 @@ public class GlobalExceptionHandler {
             .body(ex.getMessage());
    }
 
-   @ExceptionHandler(CompanyHasJobsException.class)
-   public ResponseEntity<String> handleCompanyHasJobsException(CompanyHasJobsException ex) {
-      return ResponseEntity
-            .status(HttpStatus.CONFLICT)
-            .body(ex.getMessage());
-   }
 
 }

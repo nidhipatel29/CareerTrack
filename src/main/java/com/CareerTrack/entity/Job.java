@@ -2,6 +2,8 @@ package com.CareerTrack.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -15,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -46,21 +49,24 @@ public class Job {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "company_id", nullable = false)
-   private Company company;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = true)
+    private Company company;
+
+    @OneToMany(mappedBy = "job")
+    private List<Application> applications = new ArrayList<>();
 
     public Job() {
     }
 
     public Job(String title, String description, String location,
-            EmploymentType employmentType, BigDecimal salary,Company company) {
+            EmploymentType employmentType, BigDecimal salary, Company company) {
         this.title = title;
         this.description = description;
         this.location = location;
         this.employmentType = employmentType;
         this.salary = salary;
-        this.company=company;
+        this.company = company;
     }
 
     // getters and setters
@@ -68,7 +74,6 @@ public class Job {
     public Long getId() {
         return id;
     }
-
 
     public String getTitle() {
         return title;
@@ -114,7 +119,6 @@ public class Job {
         return createdAt;
     }
 
-
     public Company getCompany() {
         return company;
     }
@@ -123,6 +127,25 @@ public class Job {
         this.company = company;
     }
 
-    
+
+     public List<Application> getApplications() {
+        return applications;
+    }
+    // sync both sides
+
+    public void addApplication(Application application) {
+        if (application != null && !applications.contains(application)) {
+            applications.add(application);
+            application.setJob(this);
+        }
+
+    }
+
+    public void removeApplication(Application application) {
+        if (application != null && applications.remove(application)
+                && application.getJob() == this) {
+            application.setJob(null);
+        }
+    }
 
 }

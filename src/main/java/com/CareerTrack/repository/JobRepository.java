@@ -14,5 +14,4 @@ public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificatio
     List<Job> findByEmploymentType(EmploymentType employmentType);
 
     List<Job> findByCompanyId(Long companyId);
-    boolean existsByCompanyId(Long companyId);
 }

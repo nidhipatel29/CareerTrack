@@ -101,7 +101,7 @@ public class JobServiceImpl implements JobService {
         job.setLocation(request.getLocation());
         job.setEmploymentType(request.getEmploymentType());
         job.setSalary(request.getSalary());
-        job.setCompany(company);
+        company.addJob(job);
 
         // save job to db
         Job savedJob = jobRepository.save(job);
@@ -156,7 +156,7 @@ public class JobServiceImpl implements JobService {
         job.setLocation(request.getLocation());
         job.setEmploymentType(request.getEmploymentType());
         job.setSalary(request.getSalary());
-        job.setCompany(company);
+        company.addJob(job);
 
         // Step 5: save
         Job updatedJob = jobRepository.save(job);

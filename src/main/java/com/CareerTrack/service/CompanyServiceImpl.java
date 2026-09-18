@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.CareerTrack.dto.CompanyRequest;
 import com.CareerTrack.dto.CompanyResponse;
@@ -12,7 +13,6 @@ import com.CareerTrack.entity.Company;
 import com.CareerTrack.entity.Job;
 import com.CareerTrack.entity.Role;
 import com.CareerTrack.entity.User;
-import com.CareerTrack.exception.CompanyHasJobsException;
 import com.CareerTrack.exception.CompanyNotFoundException;
 import com.CareerTrack.exception.UserNotFoundException;
 import com.CareerTrack.repository.CompanyRepository;
@@ -114,17 +114,17 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    @Transactional
     public void deleteCompany(Long id, String email) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
 
         validateEmployerOwnsCompany(email, company,"delete");
 
-        boolean hasJob = jobRepository.existsByCompanyId(id);
-        if (hasJob) {
-            throw new CompanyHasJobsException("Cannot delete company because it still has jobs associated with it");
+        List<Job> jobs = jobRepository.findByCompanyId(id);
+        for (Job job : jobs) {
+            company.removeJob(job);
         }
-
         companyRepository.delete(company);
     }
 
