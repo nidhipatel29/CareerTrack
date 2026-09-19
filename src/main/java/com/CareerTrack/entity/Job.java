@@ -56,6 +56,18 @@ public class Job {
     @OneToMany(mappedBy = "job")
     private List<Application> applications = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private JobStatus status = JobStatus.OPEN;
+
+    public JobStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(JobStatus status) {
+        this.status = status;
+    }
+
     public Job() {
     }
 
@@ -127,8 +139,7 @@ public class Job {
         this.company = company;
     }
 
-
-     public List<Application> getApplications() {
+    public List<Application> getApplications() {
         return applications;
     }
     // sync both sides

@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import com.CareerTrack.dto.JobRequest;
 import com.CareerTrack.dto.JobResponse;
+import com.CareerTrack.dto.JobStatusUpdateRequest;
 import com.CareerTrack.entity.Company;
 import com.CareerTrack.entity.EmploymentType;
 
@@ -43,5 +44,10 @@ public interface JobService {
                int size,
                String sortBy,
                String direction);
+
+     JobResponse updateJobStatus(
+               Long id,
+               JobStatusUpdateRequest request,
+               String email);
 
 }

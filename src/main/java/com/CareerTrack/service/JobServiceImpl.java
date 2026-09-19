@@ -12,6 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import com.CareerTrack.dto.JobRequest;
 import com.CareerTrack.dto.JobResponse;
+import com.CareerTrack.dto.JobStatusUpdateRequest;
 import com.CareerTrack.entity.Company;
 import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.entity.Job;
@@ -81,7 +82,8 @@ public class JobServiceImpl implements JobService {
                 job.getSalary(),
                 job.getCreatedAt(),
                 job.getCompany().getId(),
-                job.getCompany().getName());
+                job.getCompany().getName(),
+                job.getStatus());
     }
 
     @Override
@@ -380,5 +382,25 @@ public class JobServiceImpl implements JobService {
 
         return jobRepository.findAll(specification, pageable).map(this::mapToJobResponse);
 
+    }
+
+    @Override
+    public JobResponse updateJobStatus(
+            Long id,
+            JobStatusUpdateRequest request,
+            String email) {
+
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new JobNotFoundException(
+                        "Job not found with id: " + id));
+
+        // Make sure this employer owns the job
+        validateEmployerOwnsJob(email, job, "update status");
+
+        job.setStatus(request.getStatus());
+
+        Job updatedJob = jobRepository.save(job);
+
+        return mapToJobResponse(updatedJob);
     }
 }

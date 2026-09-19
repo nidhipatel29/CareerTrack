@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.CareerTrack.entity.EmploymentType;
+import com.CareerTrack.entity.JobStatus;
 
 public class JobResponse {
 
@@ -16,13 +17,15 @@ public class JobResponse {
     private LocalDateTime createdAt;
     private Long companyId;
     private String companyName;
+    private JobStatus status;
 
     public JobResponse() {
     }
 
     public JobResponse(Long id, String title, String description, String location,
-                        EmploymentType employmentType, BigDecimal salary, LocalDateTime createdAt,
-                        Long companyId, String companyName) {
+            EmploymentType employmentType, BigDecimal salary, LocalDateTime createdAt,
+            Long companyId, String companyName, JobStatus status) {
+
         this.id = id;
         this.title = title;
         this.description = description;
@@ -32,6 +35,7 @@ public class JobResponse {
         this.createdAt = createdAt;
         this.companyId = companyId;
         this.companyName = companyName;
+        this.status = status;
     }
 
     public Long getId() {
@@ -44,6 +48,14 @@ public class JobResponse {
 
     public String getTitle() {
         return title;
+    }
+
+    public JobStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(JobStatus status) {
+        this.status = status;
     }
 
     public void setTitle(String title) {

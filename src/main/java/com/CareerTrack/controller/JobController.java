@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.CareerTrack.dto.JobRequest;
 import com.CareerTrack.dto.JobResponse;
+import com.CareerTrack.dto.JobStatusUpdateRequest;
 import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.service.JobService;
 import jakarta.validation.Valid;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
@@ -32,7 +34,8 @@ public class JobController {
   }
 
   @PostMapping
-  public ResponseEntity<JobResponse> createJob(@Valid @RequestBody JobRequest jobRequest, Authentication authentication) {
+  public ResponseEntity<JobResponse> createJob(@Valid @RequestBody JobRequest jobRequest,
+      Authentication authentication) {
     String email = authentication.getName();
     JobResponse theJobResponse = jobService.createJob(jobRequest, email);
 
@@ -99,7 +102,8 @@ public class JobController {
       @RequestParam(defaultValue = "createdAt") String sortBy,
       @RequestParam(defaultValue = "desc") String direction) {
 
-    return jobService.filterJobsWithPagination(title,location, employmentType, companyId, page, size, sortBy, direction);
+    return jobService.filterJobsWithPagination(title, location, employmentType, companyId, page, size, sortBy,
+        direction);
   }
 
   @PutMapping("{id}")
@@ -117,5 +121,18 @@ public class JobController {
     jobService.deleteJob(id, email);
     return ResponseEntity.noContent().build();
   }
+@PatchMapping("/{id}/status")
+public ResponseEntity<JobResponse> updateJobStatus(
+        @PathVariable Long id,
+        Authentication authentication,
+        @Valid @RequestBody JobStatusUpdateRequest jobStatusUpdateRequest) {
+
+    String email = authentication.getName();
+
+    JobResponse response =
+            jobService.updateJobStatus(id, jobStatusUpdateRequest, email);
+
+    return ResponseEntity.ok(response);
+}
 
 }

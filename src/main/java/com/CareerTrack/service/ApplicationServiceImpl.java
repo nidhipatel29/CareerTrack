@@ -1,4 +1,5 @@
 package com.CareerTrack.service;
+
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -11,10 +12,12 @@ import com.CareerTrack.dto.ApplicationUpdateRequest;
 import com.CareerTrack.dto.ApplicationResponse;
 import com.CareerTrack.dto.ApplicationStatusUpdateRequest;
 import com.CareerTrack.entity.Job;
+import com.CareerTrack.entity.JobStatus;
 import com.CareerTrack.entity.Role;
 import com.CareerTrack.entity.User;
 import com.CareerTrack.exception.ApplicationNotFoundException;
 import com.CareerTrack.exception.DuplicateApplicationException;
+import com.CareerTrack.exception.InvalidRequestException;
 import com.CareerTrack.exception.JobNotFoundException;
 import com.CareerTrack.exception.UserNotFoundException;
 import com.CareerTrack.repository.ApplicationRepository;
@@ -74,6 +77,11 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .orElseThrow(() -> new JobNotFoundException(
                         "Job is not found: " + applicationCreateRequest.getJobId()));
 
+        if (job.getStatus() == JobStatus.CLOSED) {
+            throw new InvalidRequestException(
+                    "This job is no longer available");
+        }
+
         boolean alreadyExists = applicationRepository.existsByUserIdAndJobId(
                 user.getId(),
                 applicationCreateRequest.getJobId());
@@ -128,7 +136,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationResponse updateApplication(Long id, ApplicationUpdateRequest applicationUpdateRequest, String email) {
+    public ApplicationResponse updateApplication(Long id, ApplicationUpdateRequest applicationUpdateRequest,
+            String email) {
         Application application = applicationRepository.findById(id)
                 .orElseThrow(() -> new ApplicationNotFoundException("application is not found: " + id));
 
