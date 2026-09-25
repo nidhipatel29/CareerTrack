@@ -3,6 +3,9 @@ package com.CareerTrack.dto;
 
 import java.time.LocalDateTime;
 
+import com.CareerTrack.entity.Company;
+import com.CareerTrack.entity.CompanyStatus;
+
 public class CompanyResponse {
 
     private Long id;
@@ -11,17 +14,19 @@ public class CompanyResponse {
     private String website;
     private String location;
     private LocalDateTime createdAt;
+    private CompanyStatus status;
 
     public CompanyResponse(){
 
     }
-    public CompanyResponse(Long id,String name, String description, String website, String location,LocalDateTime createdAt) {
+    public CompanyResponse(Long id,String name, String description, String website, String location,LocalDateTime createdAt,CompanyStatus status) {
         this.id=id;
         this.name = name;
         this.description = description;
         this.website = website;
         this.location = location;
         this.createdAt=createdAt;
+        this.status=status;
     }
 
      //getter setter
@@ -39,6 +44,12 @@ public class CompanyResponse {
     }
     public void setName(String name) {
         this.name = name;
+    }
+    public CompanyStatus getStatus() {
+        return status;
+    }
+    public void setStatus(CompanyStatus status) {
+        this.status = status;
     }
     public String getDescription() {
         return description;

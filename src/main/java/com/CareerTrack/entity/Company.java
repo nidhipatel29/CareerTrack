@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,6 +13,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -47,8 +47,12 @@ public class Company {
     @JoinColumn(name = "employer_id", nullable = false)
     private User employer;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "company")
     private List<Job> jobs = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CompanyStatus status = CompanyStatus.ACTIVE;
 
     public Company() {
     }
@@ -59,6 +63,14 @@ public class Company {
 
     public void setEmployer(User employer) {
         this.employer = employer;
+    }
+
+    public CompanyStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(CompanyStatus status) {
+        this.status = status;
     }
 
     public List<Job> getJobs() {
@@ -114,18 +126,11 @@ public class Company {
         return createdAt;
     }
 
-     public void addJob(Job job) {
+    public void addJob(Job job) {
         if (job != null && !jobs.contains(job)) {
             jobs.add(job);
             job.setCompany(this);
         }
     }
-
-    public void removeJob(Job job) {
-        if (job != null && jobs.remove(job) && job.getCompany() == this) {
-            job.setCompany(null);
-        }
-    }
-
 
 }

@@ -2,17 +2,18 @@ package com.CareerTrack.service;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.CareerTrack.dto.CompanyRequest;
 import com.CareerTrack.dto.CompanyResponse;
 import com.CareerTrack.entity.Company;
+import com.CareerTrack.entity.CompanyStatus;
 import com.CareerTrack.entity.Job;
+import com.CareerTrack.entity.JobStatus;
 import com.CareerTrack.entity.Role;
 import com.CareerTrack.entity.User;
+import com.CareerTrack.exception.CompanyHasJobsException;
 import com.CareerTrack.exception.CompanyNotFoundException;
 import com.CareerTrack.exception.UserNotFoundException;
 import com.CareerTrack.repository.CompanyRepository;
@@ -26,22 +27,23 @@ public class CompanyServiceImpl implements CompanyService {
     private UserRepository userRepository;
     private JobRepository jobRepository;
 
-    public CompanyServiceImpl(CompanyRepository theCompanyRepository,UserRepository userRepository, JobRepository jobRepository) {
+    public CompanyServiceImpl(CompanyRepository theCompanyRepository, UserRepository userRepository,
+            JobRepository jobRepository) {
         this.companyRepository = theCompanyRepository;
-        this.userRepository=userRepository;
+        this.userRepository = userRepository;
         this.jobRepository = jobRepository;
     }
 
-    private void validateEmployerOwnsCompany(String email, Company company,String action) {
+    private void validateEmployerOwnsCompany(String email, Company company, String action) {
         User currentUser = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
 
         if (currentUser.getRole() != Role.EMPLOYER) {
-            throw new AccessDeniedException("Only employers can" + action +"companies");
+            throw new AccessDeniedException("Only employers can" + action + "companies");
         }
 
         if (company.getEmployer() == null || !company.getEmployer().getEmail().equalsIgnoreCase(email)) {
-            throw new AccessDeniedException("Employer can  only  " +  action + " their own company");
+            throw new AccessDeniedException("Employer can  only  " + action + " their own company");
         }
     }
 
@@ -54,25 +56,28 @@ public class CompanyServiceImpl implements CompanyService {
                 company.getDescription(),
                 company.getWebsite(),
                 company.getLocation(),
-                company.getCreatedAt());
+                company.getCreatedAt(),
+                company.getStatus());
 
     }
 
     @Override
-    public CompanyResponse createCompany(CompanyRequest request,String email) {
+    public CompanyResponse createCompany(CompanyRequest request, String email) {
 
         // now we need to save the entity not a request object
         // convert companyRequest to company entity
         Company company = new Company(
                 request.getName(), request.getDescription(), request.getWebsite(), request.getLocation());
 
-        User user=userRepository.findByEmailIgnoreCase(email).orElseThrow(()->new UserNotFoundException("user is  not found: "));
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new UserNotFoundException("user is  not found: " + email));
         company.setEmployer(user);
+        company.setStatus(CompanyStatus.ACTIVE);
         Company savedCompany = companyRepository.save(company);
 
         // return response
         // convert company entity to company response
-         return mapToResponse(savedCompany);
+        return mapToResponse(savedCompany);
     }
 
     @Override
@@ -93,7 +98,7 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
 
-               return mapToResponse(company);
+        return mapToResponse(company);
 
     }
 
@@ -102,7 +107,7 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
 
-        validateEmployerOwnsCompany(email, company,"update");
+        validateEmployerOwnsCompany(email, company, "update");
 
         company.setName(request.getName());
         company.setDescription(request.getDescription());
@@ -115,17 +120,48 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
-    public void deleteCompany(Long id, String email) {
-        Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new CompanyNotFoundException("Company not found with id: " + id));
+    public CompanyResponse archiveCompany(Long id, String email) {
 
-        validateEmployerOwnsCompany(email, company,"delete");
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new CompanyNotFoundException(
+                        "Company not found with id: " + id));
+
+        validateEmployerOwnsCompany(email, company, "archive");
+
+        company.setStatus(CompanyStatus.ARCHIVED);
 
         List<Job> jobs = jobRepository.findByCompanyId(id);
+
         for (Job job : jobs) {
-            company.removeJob(job);
+            if (job.getStatus() == JobStatus.OPEN) {
+                job.setStatus(JobStatus.CLOSED);
+            }
         }
-        companyRepository.delete(company);
+
+        return mapToResponse(company);
     }
+
+   @Override
+@Transactional
+public void deleteCompany(Long id, String email) {
+
+    Company company = companyRepository.findById(id)
+            .orElseThrow(() ->
+                    new CompanyNotFoundException(
+                            "Company not found with id: " + id));
+
+    validateEmployerOwnsCompany(email, company, "delete");
+
+    List<Job> jobs = jobRepository.findByCompanyId(id);
+
+    if (!jobs.isEmpty()) {
+        throw new CompanyHasJobsException(
+                "Company cannot be deleted because it has jobs. Archive the company instead.");
+    }
+
+    companyRepository.delete(company);
+}
+
+  
 
 }

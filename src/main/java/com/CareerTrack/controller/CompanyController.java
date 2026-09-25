@@ -1,4 +1,5 @@
 package com.CareerTrack.controller;
+
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import com.CareerTrack.service.CompanyService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -28,10 +30,11 @@ public class CompanyController {
   }
 
   @PostMapping
-  public ResponseEntity<CompanyResponse> startComapny(@Valid @RequestBody CompanyRequest companyRequest,Authentication authenticatioon) {
+  public ResponseEntity<CompanyResponse> startComapny(@Valid @RequestBody CompanyRequest companyRequest,
+      Authentication authenticatioon) {
 
-    String userName=authenticatioon.getName();
-    CompanyResponse theCompanyResponse = companyService.createCompany(companyRequest,userName);
+    String userName = authenticatioon.getName();
+    CompanyResponse theCompanyResponse = companyService.createCompany(companyRequest, userName);
 
     // converting companyResonce to ResponseEntity
     return ResponseEntity.status(HttpStatus.CREATED).body(theCompanyResponse);
@@ -59,11 +62,22 @@ public class CompanyController {
     return ResponseEntity.ok(updatedCompany);
   }
 
+  @PatchMapping("/{id}/archive")
+  public ResponseEntity<CompanyResponse> archiveCompany(
+      @PathVariable Long id,
+      Authentication authentication) {
+
+    String email = authentication.getName();
+
+    CompanyResponse response = companyService.archiveCompany(id, email);
+
+    return ResponseEntity.ok(response);
+  }
+
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteCompany(@PathVariable Long id, Authentication authentication) {
     String email = authentication.getName();
     companyService.deleteCompany(id, email);
     return ResponseEntity.noContent().build();
   }
-
 }

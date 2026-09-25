@@ -1,10 +1,19 @@
 package com.CareerTrack.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
-import com.CareerTrack.dto.CompanyResponse;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
 import com.CareerTrack.entity.Company;
 
-public interface CompanyRepository extends JpaRepository<Company, Long>{
-    
+public interface CompanyRepository extends JpaRepository<Company, Long> {
+
+    @EntityGraph(attributePaths = "jobs")
+    @Query("SELECT c FROM Company c")
+    List<Company> findAllWithJobs();
+
+    Company findByJobId(Long id);
+
 }
