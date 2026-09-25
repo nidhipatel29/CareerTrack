@@ -60,11 +60,7 @@ public class GlobalExceptionHandler {
       return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
    }
 
-   @ExceptionHandler(IllegalStateException.class)
-   public ResponseEntity<String> handleIllegalStateException(IllegalStateException exception) {
-
-      return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
-   }
+  
 
    @ExceptionHandler(InvalidRequestException.class)
    public ResponseEntity<String> handleInvalidRequestException(InvalidRequestException exception) {
@@ -99,6 +95,16 @@ public class GlobalExceptionHandler {
    @ExceptionHandler(JobHasApplicationsException.class)
    public ResponseEntity<String> handleJobHasApplicationsException(
          JobHasApplicationsException ex) {
+
+      return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(ex.getMessage());
+   }
+
+
+    @ExceptionHandler(CompanyHasJobsException.class)
+   public ResponseEntity<String> handleCompanyHasJobsException(
+         CompanyHasJobsException ex) {
 
       return ResponseEntity
             .status(HttpStatus.CONFLICT)
