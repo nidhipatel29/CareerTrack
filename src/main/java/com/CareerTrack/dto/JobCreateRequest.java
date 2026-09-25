@@ -1,6 +1,7 @@
 package com.CareerTrack.dto;
 
 import java.math.BigDecimal;
+
 import com.CareerTrack.entity.EmploymentType;
 
 import jakarta.validation.constraints.DecimalMin;
@@ -8,9 +9,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class JobRequest {
+public class JobCreateRequest {
 
-    @NotBlank(message = "Job title is required")
+   @NotBlank(message = "Job title is required")
     @Size(max = 150, message = "Job title must not exceed 150 characters")
     private String title;
 
@@ -29,10 +30,10 @@ public class JobRequest {
     @NotNull(message = "Company id is required")
     private Long companyId;
 
-    public JobRequest() {
+    public JobCreateRequest() {
     }
 
-    public JobRequest(String title, String description, String location,
+    public JobCreateRequest(String title, String description, String location,
                        EmploymentType employmentType, BigDecimal salary,Long  companyId) {
         this.title = title;
         this.description = description;

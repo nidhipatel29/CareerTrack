@@ -2,21 +2,23 @@ package com.CareerTrack.service;
 
 import java.util.List;
 import org.springframework.data.domain.Page;
-import com.CareerTrack.dto.JobRequest;
+
+import com.CareerTrack.dto.JobCreateRequest;
 import com.CareerTrack.dto.JobResponse;
 import com.CareerTrack.dto.JobStatusUpdateRequest;
+import com.CareerTrack.dto.JobUpdateRequest;
 import com.CareerTrack.entity.Company;
 import com.CareerTrack.entity.EmploymentType;
 
 public interface JobService {
 
-     JobResponse createJob(JobRequest request, String email);
+     JobResponse createJob(JobCreateRequest jobCreateRequest, String email);
 
      List<JobResponse> getJobs();
 
      JobResponse getJobById(Long id);
 
-     JobResponse updateJob(Long id, JobRequest request, String email);
+     JobResponse updateJob(Long id,JobUpdateRequest jobUpdateRequest, String email);
 
      void deleteJob(Long id, String email);
 

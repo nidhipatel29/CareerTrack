@@ -10,12 +10,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import com.CareerTrack.dto.JobRequest;
+import org.springframework.transaction.annotation.Transactional;
+import com.CareerTrack.dto.JobCreateRequest;
 import com.CareerTrack.dto.JobResponse;
 import com.CareerTrack.dto.JobStatusUpdateRequest;
+import com.CareerTrack.dto.JobUpdateRequest;
 import com.CareerTrack.entity.Company;
+import com.CareerTrack.entity.CompanyStatus;
 import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.entity.Job;
+import com.CareerTrack.entity.JobStatus;
 import com.CareerTrack.entity.Role;
 import com.CareerTrack.entity.User;
 import com.CareerTrack.exception.CompanyNotFoundException;
@@ -87,22 +91,27 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public JobResponse createJob(JobRequest request, String email) {
+    public JobResponse createJob(JobCreateRequest jobCreateRequest, String email) {
 
         // resolve companyId → actual Company entity
-        Company company = companyRepository.findById(request.getCompanyId())
+        Company company = companyRepository.findById(jobCreateRequest.getCompanyId())
                 .orElseThrow(() -> new CompanyNotFoundException(
-                        "Company not found with id: " + request.getCompanyId()));
+                        "Company not found with id: " + jobCreateRequest.getCompanyId()));
 
         validateEmployerCanCreateJob(email, company);
 
+        if (company.getStatus() == CompanyStatus.ARCHIVED) {
+            throw new InvalidRequestException(
+                    "Cannot create a job for an archived company");
+        }
+
         // converting job request to job entity
         Job job = new Job();
-        job.setTitle(request.getTitle());
-        job.setDescription(request.getDescription());
-        job.setLocation(request.getLocation());
-        job.setEmploymentType(request.getEmploymentType());
-        job.setSalary(request.getSalary());
+        job.setTitle(jobCreateRequest.getTitle());
+        job.setDescription(jobCreateRequest.getDescription());
+        job.setLocation(jobCreateRequest.getLocation());
+        job.setEmploymentType(jobCreateRequest.getEmploymentType());
+        job.setSalary(jobCreateRequest.getSalary());
         company.addJob(job);
 
         // save job to db
@@ -134,37 +143,25 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public JobResponse updateJob(Long jobId, JobRequest request, String email) {
+    @Transactional
+    public JobResponse updateJob(
+            Long jobId,
+            JobUpdateRequest jobUpdateRequest,
+            String email) {
 
-        // Step 1: does the Job exist?
         Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new JobNotFoundException("Job not found with id: " + jobId));
+                .orElseThrow(() -> new JobNotFoundException(
+                        "Job not found with id: " + jobId));
 
         validateEmployerOwnsJob(email, job, "update");
 
-        // Step 2: does the Company (from the request) exist?
-        Company company = companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new CompanyNotFoundException(
-                        "Company not found with id: " + request.getCompanyId()));
+        job.setTitle(jobUpdateRequest.getTitle());
+        job.setDescription(jobUpdateRequest.getDescription());
+        job.setLocation(jobUpdateRequest.getLocation());
+        job.setEmploymentType(jobUpdateRequest.getEmploymentType());
+        job.setSalary(jobUpdateRequest.getSalary());
 
-        // Step 3: ensure employer is updating their own company too
-        if (company.getEmployer() == null || !company.getEmployer().getEmail().equalsIgnoreCase(email)) {
-            throw new AccessDeniedException("Employer can update only their own job");
-        }
-
-        // Step 4: both exist → update Job fields
-        job.setTitle(request.getTitle());
-        job.setDescription(request.getDescription());
-        job.setLocation(request.getLocation());
-        job.setEmploymentType(request.getEmploymentType());
-        job.setSalary(request.getSalary());
-        company.addJob(job);
-
-        // Step 5: save
-        Job updatedJob = jobRepository.save(job);
-
-        // Step 6: map to response
-        return mapToJobResponse(updatedJob);
+        return mapToJobResponse(job);
     }
 
     @Override
@@ -396,6 +393,13 @@ public class JobServiceImpl implements JobService {
 
         // Make sure this employer owns the job
         validateEmployerOwnsJob(email, job, "update status");
+
+        if (request.getStatus() == JobStatus.OPEN
+                && job.getCompany().getStatus() == CompanyStatus.ARCHIVED) {
+
+            throw new InvalidRequestException(
+                    "Cannot reopen a job for an archived company");
+        }
 
         job.setStatus(request.getStatus());
 

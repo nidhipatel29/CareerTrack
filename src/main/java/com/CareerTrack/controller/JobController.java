@@ -3,9 +3,11 @@ package com.CareerTrack.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.CareerTrack.dto.JobRequest;
+
+import com.CareerTrack.dto.JobCreateRequest;
 import com.CareerTrack.dto.JobResponse;
 import com.CareerTrack.dto.JobStatusUpdateRequest;
+import com.CareerTrack.dto.JobUpdateRequest;
 import com.CareerTrack.entity.EmploymentType;
 import com.CareerTrack.service.JobService;
 import jakarta.validation.Valid;
@@ -34,10 +36,10 @@ public class JobController {
   }
 
   @PostMapping
-  public ResponseEntity<JobResponse> createJob(@Valid @RequestBody JobRequest jobRequest,
+  public ResponseEntity<JobResponse> createJob(@Valid @RequestBody JobCreateRequest jobCerateRequest,
       Authentication authentication) {
     String email = authentication.getName();
-    JobResponse theJobResponse = jobService.createJob(jobRequest, email);
+    JobResponse theJobResponse = jobService.createJob(jobCerateRequest, email);
 
     // converting jobResonce to ResponseEntity
     return ResponseEntity.status(HttpStatus.CREATED).body(theJobResponse);
@@ -108,10 +110,10 @@ public class JobController {
 
   @PutMapping("{id}")
   public ResponseEntity<JobResponse> updateJob(@PathVariable Long id,
-      @Valid @RequestBody JobRequest jobRequest,
+      @Valid @RequestBody JobUpdateRequest jobUpdateRequest,
       Authentication authentication) {
     String email = authentication.getName();
-    JobResponse jobResponse = jobService.updateJob(id, jobRequest, email);
+    JobResponse jobResponse = jobService.updateJob(id, jobUpdateRequest,email);
     return ResponseEntity.ok(jobResponse);
   }
 
