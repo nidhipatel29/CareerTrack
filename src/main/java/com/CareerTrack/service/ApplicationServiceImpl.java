@@ -1,5 +1,5 @@
 package com.CareerTrack.service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -67,6 +67,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 application.getCreatedAt());
     }
 
+    @Transactional
     @Override
     public ApplicationResponse createApplication(ApplicationCreateRequest applicationCreateRequest, String email) {
 
@@ -110,6 +111,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return mapToResponse(savedApplication);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ApplicationResponse> getMyApplications(String email) {
         User user = userRepository.findByEmailIgnoreCase(email)
@@ -120,6 +122,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ApplicationResponse getApplicationById(Long id, String email) {
         Application application = applicationRepository.findById(id).orElseThrow(() -> new ApplicationNotFoundException(
@@ -135,6 +138,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
+    @Transactional
     @Override
     public ApplicationResponse updateApplication(Long id, ApplicationUpdateRequest applicationUpdateRequest,
             String email) {
@@ -152,8 +156,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             application.setNotes(applicationUpdateRequest.getNotes());
 
             // update in DB
-            Application updatedApplication = applicationRepository.save(application);
-            return mapToResponse(updatedApplication);
+            return mapToResponse(application);
 
         } else {
             throw new AccessDeniedException("access is denied for this user:" + email);
@@ -161,6 +164,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     }
 
+    @Transactional(readOnly = true)
     // Get Applications By User Id
     @Override
     public List<ApplicationResponse> getApplicationsByUserId(Long userId) {
@@ -171,6 +175,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applications.stream().map(this::mapToResponse).toList();
     }
 
+    @Transactional
     @Override
     public void deleteApplication(Long id, String email) {
         Application application = applicationRepository.findById(id)
@@ -186,6 +191,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ApplicationResponse> getApplicationByJobId(Long jobId, String email) {
         Job job = jobRepository.findById(jobId)
@@ -204,6 +210,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationRepository.findByJobId(jobId).stream().map(this::mapToResponse).toList();
     }
 
+    @Transactional
     @Override
     public ApplicationResponse updateApplicationStatus(Long applicationId, ApplicationStatusUpdateRequest request,
             String email) {
@@ -229,10 +236,9 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setStatus(request.getStatus());
 
         // 5. Save
-        Application updatedApplication = applicationRepository.save(application);
 
         // 6. Return response DTO
-        return mapToResponse(updatedApplication);
+        return mapToResponse(application);
     }
 
 }

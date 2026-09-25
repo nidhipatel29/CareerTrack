@@ -16,9 +16,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "applications")
+@Table(
+    name = "applications",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_application_user_job",
+            columnNames = {"user_id", "job_id"}
+        )
+    }
+)
 public class Application {
 
     @Id
