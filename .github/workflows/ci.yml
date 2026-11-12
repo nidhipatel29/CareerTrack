@@ -20,6 +20,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '26'
+      - name: Give Maven Wrapper execution permission
+        run: chmod +x mvnw
 
       - name: Build and run tests
         run: ./mvnw clean verify
